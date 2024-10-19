@@ -1,7 +1,7 @@
 # Standard Transcription JSON (STJ) Format Specification
 
-**Version**: 0.1  
-**Date**: 2023-10-19
+**Version**: 0.2
+**Date**: 2023-10-20
 
 ## Introduction
 
@@ -15,7 +15,7 @@ The STJ format includes detailed transcription segments with associated metadata
 ## Objectives
 
 - **Interoperability**: Enable seamless data exchange between different transcription services and applications.
-- **Superset of Existing Formats**: Incorporate features from common formats (SRT, WebVTT, TTML, etc.) to ensure compatibility and extendibility.
+- **Superset of Existing Formats**: Incorporate features from common formats (SRT, WebVTT, TTML, etc.) to ensure compatibility and extensibility.
 - **Extensibility**: Allow for future enhancements without breaking compatibility.
 - **Clarity**: Provide a clear and well-documented structure for transcription data.
 - **Utility**: Include useful metadata to support a wide range of use cases.
@@ -55,10 +55,24 @@ The `"metadata"` object includes optional and required fields providing context 
 - **source** *(optional)*: Information about the source of the audio/video.
   - **uri** *(string, optional)*: The URI or file path of the source media.
   - **duration** *(number, optional)*: Duration of the media in seconds.
-  - **languages** *(array of strings, optional)*: List of detected or expected languages in the media, ordered by prevalence.
-- **languages** *(array of strings, optional)*: List of language codes present in the transcription, ordered by prevalence.
+  - **languages** *(array of strings, optional)*: List of languages present in the source media, ordered by prevalence.
+- **languages** *(array of strings, optional)*: List of languages present in the transcription, ordered by prevalence.
 - **confidence_threshold** *(number, optional)*: Confidence threshold used during transcription (0.0 - 1.0).
 - **additional_info** *(object, optional)*: A key-value map for any additional metadata.
+
+#### Clarification on `languages` Fields
+
+The STJ format includes two `languages` fields within the `metadata` section to distinguish between the languages present in the source media and those represented in the transcription.
+
+- **`metadata.source.languages`** *(array of strings, optional)*:
+  - **Definition**: Languages expected or detected in the source media.
+  - **Purpose**: Indicates the original languages spoken in the audio/video content.
+  - **Use Case**: Useful for applications that need to know what languages are present in the source, perhaps for transcription, translation, or language detection purposes.
+
+- **`metadata.languages`** *(array of strings, optional)*:
+  - **Definition**: Languages present in the transcription.
+  - **Purpose**: Indicates the languages included in the transcription data within the STJ file.
+  - **Use Case**: Essential for applications processing the transcription to know what languages they need to handle. This list may differ from `metadata.source.languages` if the transcription excludes some source languages or includes translations into new languages.
 
 #### Example
 
@@ -68,13 +82,13 @@ The `"metadata"` object includes optional and required fields providing context 
     "name": "YAWT",
     "version": "0.4.0"
   },
-  "created_at": "2023-10-19T15:30:00Z",
+  "created_at": "2023-10-20T12:00:00Z",
   "source": {
-    "uri": "https://example.com/media.mp4",
+    "uri": "https://example.com/multilingual_media.mp4",
     "duration": 3600.5,
-    "languages": ["en", "es", "fr"]
+    "languages": ["en", "es"]  // Source languages: English and Spanish
   },
-  "languages": ["en", "es", "fr"],
+  "languages": ["fr"],          // Transcription language: French
   "confidence_threshold": 0.6,
   "additional_info": {
     "project": "International Conference",
@@ -82,6 +96,8 @@ The `"metadata"` object includes optional and required fields providing context 
   }
 }
 ```
+
+In this example, the source media contains English and Spanish, but the transcription has been translated into French.
 
 ### Transcript Section
 
@@ -105,18 +121,9 @@ Each speaker object includes:
 
 ```json
 "speakers": [
-  {
-    "id": "Speaker1",
-    "name": "Dr. Smith"
-  },
-  {
-    "id": "Speaker2",
-    "name": "Señora García"
-  },
-  {
-    "id": "Speaker3",
-    "name": "Monsieur Dupont"
-  }
+  { "id": "Speaker1", "name": "Dr. Smith" },
+  { "id": "Speaker2", "name": "Señora García" },
+  { "id": "Speaker3", "name": "Monsieur Dupont" }
 ]
 ```
 
@@ -176,35 +183,15 @@ Each segment object includes:
 "segments": [
   {
     "start": 0.0,
-    "end": 5.2,
-    "text": "Good morning, everyone.",
+    "end": 5.0,
+    "text": "Bonjour tout le monde.",
     "speaker_id": "Speaker1",
     "confidence": 0.95,
-    "language": "en",
-    "style_id": "Style1",
-    "words": [
-      {
-        "start": 0.0,
-        "end": 0.5,
-        "text": "Good",
-        "confidence": 0.98
-      },
-      {
-        "start": 0.6,
-        "end": 1.2,
-        "text": "morning,",
-        "confidence": 0.97
-      },
-      {
-        "start": 1.3,
-        "end": 1.8,
-        "text": "everyone.",
-        "confidence": 0.90
-      }
-    ]
+    "language": "fr",
+    "style_id": "Style1"
   },
   {
-    "start": 5.3,
+    "start": 5.1,
     "end": 10.0,
     "text": "Gracias por estar aquí hoy.",
     "speaker_id": "Speaker2",
@@ -214,18 +201,80 @@ Each segment object includes:
   {
     "start": 10.1,
     "end": 15.0,
-    "text": "Merci de nous rejoindre aujourd'hui.",
+    "text": "Hello everyone, and welcome.",
     "speaker_id": "Speaker3",
     "confidence": 0.92,
-    "language": "fr"
+    "language": "en"
   }
 ]
 ```
 
 ### Handling Multiple Languages
 
-- **Global Language List**: The `languages` field in the `metadata` section provides an ordered list of all languages present in the media/transcript, from most to least prevalent.
-- **Segment-Level Language**: Each segment specifies its language using the `language` field, allowing applications to handle multilingual content effectively.
+- **Global Language Lists**:
+
+  - **`metadata.source.languages`** *(array of strings, optional)*:
+    - **Purpose**: Lists the languages detected or expected in the source media.
+    - **Usage**: Helps in understanding the linguistic content of the source, which is vital for transcription services, translators, and language processing tools.
+
+  - **`metadata.languages`** *(array of strings, optional)*:
+    - **Purpose**: Lists the languages present in the transcription data.
+    - **Usage**: Indicates which languages are included in the STJ file. This list may differ from `metadata.source.languages` if the transcription excludes some source languages or includes translations.
+
+- **Segment-Level Language**:
+
+  - Each segment specifies its language using the `language` field.
+  - Useful for:
+    - **Multilingual Transcriptions**: When the transcription includes multiple languages.
+    - **Translations**: When segments have been translated into different languages.
+
+#### Example Scenario: Translated Transcription
+
+Imagine a video where presenters speak in English and Spanish, and the transcription has been translated entirely into French and German.
+
+```json
+"metadata": {
+  "transcriber": {
+    "name": "YAWT",
+    "version": "0.4.0"
+  },
+  "created_at": "2023-10-20T12:00:00Z",
+  "source": {
+    "uri": "https://example.com/event.mp4",
+    "duration": 5400.0,
+    "languages": ["en", "es"]
+  },
+  "languages": ["fr", "de"],
+  "additional_info": { ... }
+},
+"transcript": {
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 5.0,
+      "text": "Bonjour à tous.",
+      "speaker_id": "Speaker1",
+      "confidence": 0.95,
+      "language": "fr"
+    },
+    {
+      "start": 5.1,
+      "end": 10.0,
+      "text": "Willkommen alle zusammen.",
+      "speaker_id": "Speaker2",
+      "confidence": 0.94,
+      "language": "de"
+    }
+    // More segments...
+  ]
+}
+```
+
+In this example:
+
+- The source media languages are English (`"en"`) and Spanish (`"es"`).
+- The transcription languages are French (`"fr"`) and German (`"de"`).
+- Each segment indicates the language of the transcribed text.
 
 ### Optional vs. Mandatory Fields Summary
 
@@ -314,90 +363,6 @@ The STJ format follows best practices for data interchange formats, drawing insp
 - **Naming Conventions**: Field names are concise and use lowercase letters with underscores for readability.
 - **Extensibility**: The format allows for future expansion without breaking existing implementations.
 
-## Python Code to Generate SRT and WebVTT Files from STJ
-
-Below is Python code that demonstrates how to generate SRT and WebVTT (VTT) files from an STJ file.
-
-### Prerequisites
-
-- Python 3.x
-- Install the `srt` and `webvtt-py` libraries:
-
-```bash
-pip install srt webvtt-py
-```
-
-### Code
-
-```python
-import json
-import srt
-from datetime import timedelta
-import webvtt
-
-def load_stj(stj_file_path):
-    with open(stj_file_path, 'r', encoding='utf-8') as f:
-        stj_data = json.load(f)
-    return stj_data
-
-def generate_srt(stj_data, output_srt_path):
-    segments = stj_data['transcript']['segments']
-    subtitles = []
-    for index, seg in enumerate(segments, start=1):
-        start = timedelta(seconds=seg['start'])
-        end = timedelta(seconds=seg['end'])
-        text = seg['text']
-        subtitles.append(srt.Subtitle(index=index, start=start, end=end, content=text))
-    srt_content = srt.compose(subtitles)
-    with open(output_srt_path, 'w', encoding='utf-8') as f:
-        f.write(srt_content)
-    print(f"SRT file generated: {output_srt_path}")
-
-def generate_vtt(stj_data, output_vtt_path):
-    segments = stj_data['transcript']['segments']
-    vtt = webvtt.WebVTT()
-    for seg in segments:
-        caption = webvtt.Caption()
-        caption.start = format_timestamp(seg['start'])
-        caption.end = format_timestamp(seg['end'])
-        caption.text = seg['text']
-        vtt.captions.append(caption)
-    vtt.save(output_vtt_path)
-    print(f"WebVTT file generated: {output_vtt_path}")
-
-def format_timestamp(seconds):
-    milliseconds = int((seconds - int(seconds)) * 1000)
-    td = timedelta(seconds=int(seconds), milliseconds=milliseconds)
-    total_seconds = td.total_seconds()
-    hours = int(total_seconds // 3600)
-    minutes = int((total_seconds % 3600) // 60)
-    seconds = int(total_seconds % 60)
-    milliseconds = int((total_seconds - int(total_seconds)) * 1000)
-    return f"{hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d}"
-
-if __name__ == "__main__":
-    stj_file = 'transcription.stj.json'
-    srt_output = 'transcription.srt'
-    vtt_output = 'transcription.vtt'
-
-    stj_data = load_stj(stj_file)
-    generate_srt(stj_data, srt_output)
-    generate_vtt(stj_data, vtt_output)
-```
-
-### Explanation
-
-- **load_stj**: Loads the STJ JSON data from a file.
-- **generate_srt**: Converts the segments into SRT subtitles using the `srt` library.
-- **generate_vtt**: Converts the segments into WebVTT subtitles using the `webvtt` library.
-- **format_timestamp**: Formats the timestamp to the required format for WebVTT.
-
-### Notes
-
-- The code assumes that the `segments` array in the STJ file contains at least the mandatory fields: `start`, `end`, and `text`.
-- Speaker information and styling are not included in the SRT and VTT outputs, as these formats have limited support for such features.
-- For formats that support styling (e.g., SSA/ASS), additional code would be needed to include styling information from the STJ `styles`.
-
 ## Final Remarks
 
 The STJ format aims to be a comprehensive and flexible standard for transcription data representation. By incorporating features from existing formats and adhering to best practices, it strives to meet the needs of a wide range of applications and facilitate better interoperability in the field of speech transcription and subtitles.
@@ -406,4 +371,4 @@ The STJ format aims to be a comprehensive and flexible standard for transcriptio
 
 **Note**: This specification is open for suggestions and improvements. Contributions from the community are welcome to refine and enhance the STJ format.
 
-**Contact**: For feedback or contributions, please reach out via [The STJ Repo](https://github.com/yaniv-golan/STJ).
+**Contact**: For feedback or contributions, please reach out via [The STJ Repository](https://github.com/yaniv-golan/STJ).
