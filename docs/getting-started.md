@@ -13,3 +13,12 @@ To validate an STJ file using the provided Python script:
 
 ```bash
 python tools/python/stj_validator.py examples/simple.stj.json spec/schema/stj-schema.json
+```
+
+## Converting STJ to SRT
+
+To convert an STJ file to SRT:
+
+```bash
+python tools/python/stj_to_srt.py examples/simple.stj.json output.srt
+```
