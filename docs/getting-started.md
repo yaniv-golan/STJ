@@ -25,11 +25,11 @@ python tools/python/stj_to_srt.py examples/simple.stj.json output.srt
 
 ## Further Reading
 
-[Contribution Guide](./docs/contributing.md)
+[Contribution Guidelines](../CONTRIBUTING.md)
 
-[STJ Specification](./spec/stj-specification.md)
+[STJ Specification](../spec/stj-specification.md)
 
-[API Reference](./docs/api-reference.md)
+[API Reference](./api-reference.md)
 
-[Best Practices](./docs/best-practices.md)
+[Best Practices](./best-practices.md)
 
