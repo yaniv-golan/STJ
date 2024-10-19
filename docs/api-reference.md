@@ -20,7 +20,7 @@ python stj_validator.py <stj_file> <schema_file>
 **Example**:
 
 ```bash
-python stj_validator.py examples/complex.stj.json spec/schema/stj-schema.json
+python stj_validator.py examples/multilingual.stj.json spec/schema/stj-schema.json
 ```
 
 ### `stj_to_srt.py`
@@ -41,7 +41,7 @@ python stj_to_srt.py <stj_file> <output_srt>
 **Example**:
 
 ```bash
-python stj_to_srt.py examples/complex.stj.json output.srt
+python stj_to_srt.py examples/multilingual.stj.json output.srt
 ```
 
 ### `stj_to_vtt.py`
@@ -62,70 +62,7 @@ python stj_to_vtt.py <stj_file> <output_vtt>
 **Example**:
 
 ```bash
-python stj_to_vtt.py examples/complex.stj.json output.vtt
-```
-
-### `stj-validator.js`
-
-**Description**: Validates an STJ file against the STJ schema using Node.js.
-
-**Usage**:
-
-```bash
-node stj-validator.js <stj_file> <schema_file>
-```
-
-**Arguments**:
-
-- `<stj_file>`: Path to the STJ file to validate.
-- `<schema_file>`: Path to the JSON schema file.
-
-**Example**:
-
-```bash
-node stj-validator.js examples/complex.stj.json spec/schema/stj-schema.json
-```
-
-### `stj-to-srt.js`
-
-**Description**: Converts an STJ file to an SRT subtitle file using Node.js.
-
-**Usage**:
-
-```bash
-node stj-to-srt.js <stj_file> <output_srt>
-```
-
-**Arguments**:
-
-- `<stj_file>`: Path to the STJ file.
-- `<output_srt>`: Path to the output SRT file.
-
-**Example**:
-
-```bash
-node stj-to-srt.js examples/complex.stj.json output.srt
-```
-
-### `stj-to-vtt.js`
-
-**Description**: Converts an STJ file to a WebVTT subtitle file using Node.js.
-
-**Usage**:
-
-```bash
-node stj-to-vtt.js <stj_file> <output_vtt>
-```
-
-**Arguments**:
-
-- `<stj_file>`: Path to the STJ file.
-- `<output_vtt>`: Path to the output VTT file.
-
-**Example**:
-
-```bash
-node stj-to-vtt.js examples/complex.stj.json output.vtt
+python stj_to_vtt.py examples/multilingual.stj.json output.vtt
 ```
 
 ---
@@ -162,31 +99,31 @@ node stj-to-vtt.js examples/complex.stj.json output.vtt
   - `webvtt`
   - `argparse`
 
-### JavaScript
+---
 
-#### `stj-validator.js`
+## Field Explanations
 
-- **Function**: `validateSTJ(stjFilePath, schemaFilePath)`
-  - Validates the STJ file against the schema.
-- **Dependencies**:
-  - `fs`
-  - `ajv`
+### `metadata.source.languages`
 
-#### `stj-to-srt.js`
+- **Type**: Array of strings (ISO 639-1 or ISO 639-3 codes)
+- **Purpose**: Indicates the languages present in the source media.
+- **Example**: `["en", "es", "de"]`
 
-- **Function**: `generateSRT(stjData, outputSrtPath)`
-  - Converts STJ data to SRT format.
-- **Dependencies**:
-  - `fs`
-  - `srt-parser-2`
-  - `moment`
+### `metadata.languages`
 
-#### `stj-to-vtt.js`
+- **Type**: Array of strings (ISO 639-1 or ISO 639-3 codes)
+- **Purpose**: Indicates the languages included in the transcription.
+- **Example**: `["fr", "it"]`
 
-- **Function**: `generateVTT(stjData, outputVttPath)`
-  - Converts STJ data to WebVTT format.
-- **Dependencies**:
-  - `fs`
-  - `node-webvtt`
-  - `moment`
-```
+---
+
+## Notes on Language Fields
+
+It's important to distinguish between the languages in the source media and those in the transcription, especially when translations are involved.
+
+- **When the transcription is a direct transcription without translation**:
+  - `metadata.source.languages` and `metadata.languages` may contain the same values.
+
+- **When the transcription includes translations**:
+  - `metadata.languages` will include the target language codes.
+  - `metadata.source.languages` will remain unchanged, reflecting the original languages in the media.
