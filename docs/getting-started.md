@@ -22,3 +22,9 @@ To convert an STJ file to SRT:
 ```bash
 python tools/python/stj_to_srt.py examples/simple.stj.json output.srt
 ```
+
+## Further Reading
+
+STJ Specification
+API Reference
+Best Practices
