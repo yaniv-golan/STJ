@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Standard Transcription JSON Schema",
+  "type": "object",
+  "required": ["metadata", "transcript"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["transcriber", "created_at"],
+      "properties": {
+        "transcriber": {
+          "type": "object",
+          "required": ["name", "version"],
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" }
+          }
+        },
+        "created_at": { "type": "string", "format": "date-time" },
+        "source": {
+          "type": "object",
+          "properties": {
+            "uri": { "type": "string" },
+            "duration": { "type": "number" },
+            "languages": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "confidence_threshold": { "type": "number" },
+        "additional_info": { "type": "object" }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "required": ["segments"],
+      "properties": {
+        "speakers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "additional_info": { "type": "object" }
+            }
+          }
+        },
+        "styles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "formatting": { "type": "object" },
+              "positioning": { "type": "object" },
+              "additional_info": { "type": "object" }
+            }
+          }
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["start", "end", "text"],
+            "properties": {
+              "start": { "type": "number" },
+              "end": { "type": "number" },
+              "text": { "type": "string" },
+              "speaker_id": { "type": "string" },
+              "confidence": { "type": "number" },
+              "language": { "type": "string" },
+              "style_id": { "type": "string" },
+              "words": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["text"],
+                  "properties": {
+                    "start": { "type": "number" },
+                    "end": { "type": "number" },
+                    "text": { "type": "string" },
+                    "confidence": { "type": "number" }
+                  }
+                }
+              },
+              "additional_info": { "type": "object" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
