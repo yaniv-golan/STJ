@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "transcriber": {
+      "name": "YAWT",
+      "version": "0.1.0"
+    },
+    "created_at": "2023-10-19T15:30:00Z",
+    "languages": ["en", "es", "fr"]
+  },
+  "transcript": {
+    "speakers": [
+      {
+        "id": "Speaker1",
+        "name": "Dr. Smith"
+      },
+      {
+        "id": "Speaker2",
+        "name": "Señora García"
+      },
+      {
+        "id": "Speaker3",
+        "name": "Monsieur Dupont"
+      }
+    ],
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 5.2,
+        "text": "Good morning, everyone.",
+        "speaker_id": "Speaker1",
+        "language": "en"
+      },
+      {
+        "start": 5.3,
+        "end": 10.0,
+        "text": "Gracias por estar aquí hoy.",
+        "speaker_id": "Speaker2",
+        "language": "es"
+      },
+      {
+        "start": 10.1,
+        "end": 15.0,
+        "text": "Merci de nous rejoindre aujourd'hui.",
+        "speaker_id": "Speaker3",
+        "language": "fr"
+      }
+    ]
+  }
+}
