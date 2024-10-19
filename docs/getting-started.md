@@ -25,6 +25,8 @@ python tools/python/stj_to_srt.py examples/simple.stj.json output.srt
 
 ## Further Reading
 
-STJ Specification
-API Reference
-Best Practices
+[Contribution Guide](./docs/contributing.md)
+
+[STJ Specification](./spec/stj-specification.md)
+[API Reference](./docs/api-reference.md)
+[Best Practices](./docs/best-practices.md)
