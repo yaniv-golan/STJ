@@ -406,4 +406,4 @@ The STJ format aims to be a comprehensive and flexible standard for transcriptio
 
 **Note**: This specification is open for suggestions and improvements. Contributions from the community are welcome to refine and enhance the STJ format.
 
-**Contact**: For feedback or contributions, please reach out via [The STJ Repo]([mailto:contact@example.com](https://github.com/yaniv-golan/STJ).
+**Contact**: For feedback or contributions, please reach out via [The STJ Repo](https://github.com/yaniv-golan/STJ).
