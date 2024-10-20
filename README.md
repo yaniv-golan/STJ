@@ -20,6 +20,10 @@ The **Standard Transcription JSON (STJ)** format is a proposed standard for repr
 - **/benchmarks**: Performance benchmarking scripts.
 - **/.github**: GitHub configuration files.
 
+## Getting Started
+
+To get started with STJ, please refer to the [Getting Started Guide](./docs/getting-started.md).
+
 ## Installation
 
 ### Python Tools
@@ -66,9 +70,29 @@ npm install
 
 For more detailed installation instructions and troubleshooting, please refer to the [Installation Guide](./docs/installation.md).
 
-## Getting Started
+## Running Tests
 
-To get started with STJ, please refer to the [Getting Started Guide](./docs/getting-started.md).
+### Python Tests
+
+To run the Python tests:
+
+```bash
+cd tests/python/
+python -m unittest discover
+```
+
+### JavaScript Tests
+
+To run the JavaScript tests:
+
+```bash
+cd tools/javascript/
+npm test
+```
+
+### Continuous Integration
+
+The repository uses GitHub Actions for continuous integration. Tests are automatically run on every push and pull request.
 
 ## Contributing
 
