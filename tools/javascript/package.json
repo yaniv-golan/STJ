@@ -1,0 +1,20 @@
+{
+  "name": "stj-tools",
+  "version": "1.0.0",
+  "description": "JavaScript tools for working with STJ files",
+  "main": "index.js",
+  "scripts": {
+    "stj-to-srt": "node stj-to-srt.js",
+    "stj-to-vtt": "node stj-to-vtt.js",
+    "stj-to-ass": "node stj-to-ass.js",
+    "stj-validator": "node stj-validator.js"
+  },
+  "dependencies": {
+    "ajv": "^8.6.2",
+    "moment": "^2.29.1",
+    "node-webvtt": "^2.2.0",
+    "srt-parser-2": "^1.1.8"
+  },
+  "author": "Yaniv Golan",
+  "license": "MIT"
+}
