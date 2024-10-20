@@ -20,6 +20,52 @@ The **Standard Transcription JSON (STJ)** format is a proposed standard for repr
 - **/benchmarks**: Performance benchmarking scripts.
 - **/.github**: GitHub configuration files.
 
+## Installation
+
+### Python Tools
+
+Before running the Python tools, install the required packages. It's recommended to use a virtual environment.
+
+**Using a Virtual Environment:**
+
+```bash
+# Navigate to the tools/python/ directory
+cd tools/python/
+
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+# On macOS/Linux:
+source venv/bin/activate
+
+# On Windows:
+venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+**Without a Virtual Environment:**
+
+```bash
+pip install -r tools/python/requirements.txt
+```
+
+### JavaScript Tools
+
+Before running the JavaScript tools, install the required packages using `npm`.
+
+```bash
+# Navigate to the tools/javascript/ directory
+cd tools/javascript/
+
+# Install dependencies
+npm install
+```
+
+For more detailed installation instructions and troubleshooting, please refer to the [Installation Guide](./docs/installation.md).
+
 ## Getting Started
 
 To get started with STJ, please refer to the [Getting Started Guide](./docs/getting-started.md).
@@ -28,7 +74,12 @@ To get started with STJ, please refer to the [Getting Started Guide](./docs/gett
 
 Contributions are welcome! Please read our [Contribution Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md).
 
+## Documentation
+
+- [API Reference](./docs/api-reference.md)
+- [Best Practices](./docs/best-practices.md)
+- [STJ Specification](./spec/stj-specification.md)
+
 ## License
 
 This project is licensed under the [MIT License](./LICENSE).
-
