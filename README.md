@@ -1,7 +1,7 @@
 # Standard Transcription JSON (STJ) Format
 
-**Version**: 0.1  
-**Date**: 2023-10-19
+**Version**: 0.2
+**Date**: 2024-10-20
 
 ## Introduction
 
