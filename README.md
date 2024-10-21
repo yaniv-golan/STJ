@@ -104,7 +104,7 @@ Contributions are welcome! Please read our [Contribution Guidelines](./CONTRIBUT
 - [Best Practices](./docs/best-practices.md)
 - [STJ Specification](./spec/stj-specification.md)
 
-## Projects using JTL
+## Projects using STJ
 
 - [YAWT](https://github.com/yaniv-golan/YAWT)
 
