@@ -1,0 +1,31 @@
+{
+    "metadata": {
+      "transcriber": {
+        "name": "TestTranscriber",
+        "version": "1.0"
+      },
+      "created_at": "2023-10-21T12:00:00Z"
+    },
+    "transcript": {
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 3.0,
+          "text": "Timing mismatch",
+          "words": [
+            {
+              "start": -1.0,  // Before segment start
+              "end": 1.0,
+              "text": "Timing"
+            },
+            {
+              "start": 1.0,
+              "end": 4.0,  // After segment end
+              "text": "mismatch"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  

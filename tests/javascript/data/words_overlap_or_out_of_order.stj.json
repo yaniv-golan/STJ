@@ -1,0 +1,31 @@
+{
+    "metadata": {
+      "transcriber": {
+        "name": "TestTranscriber",
+        "version": "1.0"
+      },
+      "created_at": "2023-10-21T12:00:00Z"
+    },
+    "transcript": {
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 3.0,
+          "text": "Overlap test",
+          "words": [
+            {
+              "start": 0.5,
+              "end": 1.5,
+              "text": "Overlap"
+            },
+            {
+              "start": 1.0,  // Starts before the previous word ends
+              "end": 2.0,
+              "text": "test"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  
