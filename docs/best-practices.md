@@ -80,11 +80,6 @@ The Standard Transcription JSON (STJ) format is designed to be flexible and comp
 - **Including Confidence**: Provide `confidence` scores for segments and words when available.
 - **Interpreting Confidence**: Use the `confidence_threshold` from metadata to determine if segments need review.
 
-## Words Array
-
-- **Detailed Word Data**: Include the `words` array in segments when word-level timing or confidence is needed.
-- **Minimal Segments**: If word-level details are not required, omit the `words` array to reduce file size.
-
 ## Additional Information
 
 - **Custom Data**: Use the `additional_info` field to include application-specific data.
