@@ -23,6 +23,15 @@ The STJ format includes detailed transcription segments with associated metadata
 
 ## Specification
 
+### Version History
+
+**Version 0.4 Changes**:
+
+- **Added** `word_timing_mode` field in segments to indicate the completeness of word-level timing data.
+- **Clarified** the relationship between segment-level text and word-level details, accounting for `word_timing_mode`.
+- **Specified** validation requirements for all parts of the JSON, including segments, words, speakers, styles, and additional fields.
+- **Provided** additional examples demonstrating the use of `word_timing_mode`.
+
 ### Overview
 
 The STJ file is a JSON object containing two main sections:
@@ -218,15 +227,17 @@ Each segment object includes:
     "speaker_id": "Speaker3",
     "confidence": 0.92,
     "language": "en",
-    "words": [
-      { "start": 10.1, "end": 10.5, "text": "Hello" },
-      { "start": 10.6, "end": 11.0, "text": "everyone," },
-      { "start": 11.1, "end": 11.5, "text": "and" },
-      { "start": 11.6, "end": 12.0, "text": "welcome." }
-    ]
+    "word_timing_mode": "none"
+    // No words array provided
   }
 ]
 ```
+
+In this example:
+
+- The first segment has complete word-level data (`word_timing_mode`: `"complete"`).
+- The second segment has partial word-level data (`word_timing_mode`: `"partial"`).
+- The third segment has no word-level data (`word_timing_mode`: `"none"` or omitted).
 
 ### Handling Multiple Languages
 
@@ -307,35 +318,88 @@ In this example:
   - `transcript.segments[].text`
 
 - **Optional Fields**:
-  - All other fields, including `speakers`, `styles`, `speaker_id`, `confidence`, `language`, `style_id`, `words`, etc.
+  - All other fields, including `speakers`, `styles`, `speaker_id`, `confidence`, `language`, `style_id`, `words`, `word_timing_mode`, etc.
 
 ## Field Definitions and Constraints
 
-- **Time Fields**: All time-related fields (`start`, `end`) are in seconds and can have fractional values to represent milliseconds.
+- **Time Fields**:
+  - All time-related fields (`start`, `end`) are in seconds and can have fractional values to represent milliseconds.
   - **Constraints**:
     - `start` must not be greater than `end`.
     - Segments should not overlap in time.
     - For zero-duration words or segments (`start` equals `end`), include the appropriate duration field (`word_duration` or `segment_duration`) set to `"zero"`.
+- **Confidence Scores**:
+  - Confidence scores are floating-point numbers between `0.0` (no confidence) and `1.0` (full confidence). They are optional but recommended.
+- **Language Codes**:
+  - Use ISO 639-1 (two-letter codes) or ISO 639-3 (three-letter codes) for language representation.
+- **Speaker IDs**:
+  - If `speaker_id` is used, it must match an `id` in the `speakers` list.
+- **Style IDs**:
+  - If `style_id` is used, it must match an `id` in the `styles` list.
+- **Text Fields**:
+  - `text` fields should be in plain text format. Special formatting or markup should be handled via the `styles` mechanism.
+- **`word_timing_mode` Field**:
+  - **Purpose**: Indicates the completeness of word-level timing data within the segment.
+  - **Allowed Values**:
+    - `"complete"`: All words in the segment have timing data.
+    - `"partial"`: Only some words have timing data.
+    - `"none"`: No word-level timing data is provided.
+  - **Constraints**:
+    - If `words` array is present and covers all words, `word_timing_mode` may be omitted (defaulting to `"complete"`).
+    - If `words` array is present but does not cover all words, `word_timing_mode` must be set to `"partial"`.
+    - If `words` array is absent, `word_timing_mode` should be `"none"` or omitted.
 
-- **Confidence Scores**: Confidence scores are floating-point numbers between `0.0` (no confidence) and `1.0` (full confidence). They are optional but recommended.
+## Validation Requirements
 
-- **Language Codes**: Use ISO 639-1 (two-letter codes) or ISO 639-3 (three-letter codes) for language representation.
+### Segment-Level Validation
 
-- **Speaker IDs**: If `speaker_id` is used, it must match an `id` in the `speakers` list.
+- **Required Fields**:
+  - `start` and `end` times are present and `start` ≤ `end`.
+  - `text` is present and non-empty.
+- **References**:
+  - `speaker_id`, if present, must match an `id` in the `speakers` list.
+  - `style_id`, if present, must match an `id` in the `styles` list.
+- **Timing**:
+  - Segments should not overlap in time.
+- **Zero-Length Segments**:
+  - If `start` equals `end`, include `segment_duration` set to `"zero"` in `additional_info`.
 
-- **Style IDs**: If `style_id` is used, it must match an `id` in the `styles` list.
+### Word-Level Validation
 
-- **Text Fields**: `text` fields should be in plain text format. Special formatting or markup should be handled via the `styles` mechanism.
+- **When `words` array is present**:
+  - Each word object must have `text`, `start`, and `end`.
+  - Word `start` and `end` times must be within the segment's `start` and `end` times.
+  - Words should be ordered by `start` time.
+  - Word timings should not overlap.
+- **`word_timing_mode` Field**:
+  - **When `word_timing_mode` is `"complete"` or omitted**:
+    - The concatenation of all `text` fields in `words` must match the segment's `text`, except for differences in whitespace or punctuation.
+  - **When `word_timing_mode` is `"partial"`**:
+    - The `text` fields in `words` must be a subset of the words in the segment's `text`, in the same order.
+- **Zero-Length Words**:
+  - If a word's `start` equals `end`, include `word_duration` set to `"zero"` in `additional_info`.
 
-- **Validation Requirements**:
-  - **Segment-Level Validation**:
-    - Required fields are present.
-    - Time fields are valid.
-    - References (`speaker_id`, `style_id`) are valid.
-  - **Word-Level Validation**:
-    - Words are within segment times.
-    - `word_timing_mode` is correctly set.
-    - Text consistency is maintained as per `word_timing_mode`.
+### Overall Consistency
+
+- **Language Codes**:
+  - All language codes must be valid ISO 639 codes.
+- **Confidence Scores**:
+  - Confidence scores, if present, must be within the range [0.0, 1.0].
+- **References**:
+  - All `speaker_id` and `style_id` references must correspond to valid entries in the `speakers` and `styles` lists, respectively.
+- **Unique IDs**:
+  - All IDs used in `speakers` and `styles` must be unique within their respective arrays.
+
+### Additional Validation
+
+- **Time Fields**:
+  - All time fields (`start`, `end`) must be non-negative numbers.
+- **Segment Ordering**:
+  - Segments should be ordered by their `start` times.
+- **No Overlapping Segments**:
+  - Segments should not overlap in time.
+- **Additional Info Fields**:
+  - The `additional_info` field, if used, should be an object containing key-value pairs.
 
 ## Representing Confidence
 
