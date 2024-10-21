@@ -70,6 +70,15 @@ The Standard Transcription JSON (STJ) format is designed to be flexible and comp
 - **Detailed Word Data**: Include the `words` array in segments when word-level timing or confidence is needed.
 - **Minimal Segments**: If word-level details are not required, omit the `words` array to reduce file size.
 
+## Handling `word_timing_mode`
+
+- **Complete Word Data**:
+  - When `word_timing_mode` is `"complete"`, ensure that all words in the `text` field are represented in the `words` array.
+- **Partial Word Data**:
+  - When `word_timing_mode` is `"partial"`, include as many words as have timing data, and ensure they are in the correct order.
+- **No Word Data**:
+  - When there is no word-level timing data, you may omit the `words` array or set `word_timing_mode` to `"none"`.
+
 ## Styling
 
 - **Use of Styles**: Define styles in the `styles` array and reference them in segments using `style_id`.

@@ -257,6 +257,26 @@ node stj-to-ass.js examples/multilingual.stj.json output.ass
 
 ## Field Explanations
 
+### `word_timing_mode`
+
+- **Type**: String
+- **Purpose**: Indicates the completeness of word-level timing data within a segment.
+- **Allowed Values**:
+  - `"complete"`
+  - `"partial"`
+  - `"none"`
+- **Usage**: Used by applications to understand how to process the `words` array within a segment.
+
+**Example**:
+
+```json
+{
+  "word_timing_mode": "partial",
+  "words": [
+    { "start": 5.1, "end": 5.5, "text": "Gracias" }
+    // Remaining words are not included
+  ]
+}
 ### `metadata.source.languages`
 
 - **Type**: Array of strings (ISO 639-1 or ISO 639-3 codes)
