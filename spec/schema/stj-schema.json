@@ -80,11 +80,15 @@
               "confidence": { "type": "number" },
               "language": { "type": "string" },
               "style_id": { "type": "string" },
+              "word_timing_mode": {
+                "type": "string",
+                "enum": ["complete", "partial", "none"]
+              },
               "words": {
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": ["text"],
+                  "required": ["start", "end", "text"],
                   "properties": {
                     "start": { "type": "number" },
                     "end": { "type": "number" },
