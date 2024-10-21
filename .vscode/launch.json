@@ -23,10 +23,15 @@
             "name": "Run pytest",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/-m pytest",
+            "program": "python",
             "args": [
+                "-m",
+                "pytest",
                 "${workspaceFolder}/tests/python/"
             ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/tools/python"
+            },
             "console": "integratedTerminal"
         }
     ]
