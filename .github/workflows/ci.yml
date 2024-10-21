@@ -41,6 +41,11 @@ jobs:
     - name: Install dependencies
       working-directory: ./tools/javascript
       run: npm install
+    - name: List files for debugging
+      working-directory: ./tools/javascript
+      run: |
+        echo "Current directory: $(pwd)"
+        ls -R
     - name: Run JavaScript tests
       working-directory: ./tools/javascript
       run: npm test
