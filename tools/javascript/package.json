@@ -8,7 +8,7 @@
     "stj-to-vtt": "node stj-to-vtt.js",
     "stj-to-ass": "node stj-to-ass.js",
     "stj-validator": "node stj-validator.js",
-    "test": "jest --config ../../jest.config.js"
+    "test": "jest"
   },
   "dependencies": {
     "ajv": "^8.6.2",
