@@ -1,3 +1,5 @@
 srt>=3.5.2
 webvtt-py>=0.4.6
 jsonschema>=3.2.0
+pytest>=7.0.0
+

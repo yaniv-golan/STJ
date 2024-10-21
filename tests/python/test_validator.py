@@ -1,93 +1,87 @@
-import unittest
 import json
 import os
+import pytest
 from jsonschema import validate, ValidationError, SchemaError
 
-class TestSTJValidator(unittest.TestCase):
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-    def setUp(self):
-        # Load the schema
-        schema_path = os.path.join('spec', 'schema', 'stj-schema.json')
-        with open(schema_path, 'r', encoding='utf-8') as f:
-            self.schema = json.load(f)
+@pytest.fixture
+def schema():
+    # Load the schema
+    schema_path = os.path.join(PROJECT_ROOT, 'spec', 'schema', 'stj-schema.json')
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-    def test_valid_stj_file(self):
-        # Test with a valid STJ file
-        stj_file_path = os.path.join('examples', 'complex.stj.json')
-        with open(stj_file_path, 'r', encoding='utf-8') as f:
-            stj_data = json.load(f)
-        try:
-            validate(instance=stj_data, schema=self.schema)
-        except ValidationError as e:
-            self.fail(f"ValidationError raised unexpectedly: {e}")
+def test_valid_stj_file(schema):
+    # Test with a valid STJ file
+    stj_file_path = os.path.join(PROJECT_ROOT, 'examples', 'simple.stj.json')
+    with open(stj_file_path, 'r', encoding='utf-8') as f:
+        stj_data = json.load(f)
+    validate(instance=stj_data, schema=schema)
 
-    def test_invalid_missing_mandatory_field(self):
-        # Test with an STJ file missing a mandatory field
-        stj_data = {
-            # 'metadata' is missing
-            "transcript": {
-                "segments": []
-            }
+def test_invalid_missing_mandatory_field(schema):
+    # Test with an STJ file missing a mandatory field
+    stj_data = {
+        # 'metadata' is missing
+        "transcript": {
+            "segments": []
         }
-        with self.assertRaises(ValidationError):
-            validate(instance=stj_data, schema=self.schema)
+    }
+    with pytest.raises(ValidationError):
+        validate(instance=stj_data, schema=schema)
 
-    def test_invalid_wrong_data_type(self):
-        # Test with incorrect data types
-        stj_data = {
-            "metadata": {
-                "transcriber": {
-                    "name": "YAWT",
-                    "version": "0.1.0"
-                },
-                "created_at": "2023-10-19T15:30:00Z"
+def test_invalid_wrong_data_type(schema):
+    # Test with incorrect data types
+    stj_data = {
+        "metadata": {
+            "transcriber": {
+                "name": "test_validator",
+                "version": "0.1.0"
             },
-            "transcript": {
-                "segments": [
-                    {
-                        "start": "not a number",  # Incorrect data type
-                        "end": 5.0,
-                        "text": "Sample text"
-                    }
-                ]
-            }
+            "created_at": "2023-10-19T15:30:00Z"
+        },
+        "transcript": {
+            "segments": [
+                {
+                    "start": "not a number",  # Incorrect data type
+                    "end": 5.0,
+                    "text": "Sample text"
+                }
+            ]
         }
-        with self.assertRaises(ValidationError):
-            validate(instance=stj_data, schema=self.schema)
+    }
+    with pytest.raises(ValidationError):
+        validate(instance=stj_data, schema=schema)
 
-    def test_invalid_additional_properties(self):
-        # Test with unexpected additional properties
-        stj_data = {
-            "metadata": {
-                "transcriber": {
-                    "name": "YAWT",
-                    "version": "0.1.0"
-                },
-                "created_at": "2023-10-19T15:30:00Z",
-                "unexpected_field": "unexpected"
+def test_invalid_additional_properties(schema):
+    # Test with unexpected additional properties
+    stj_data = {
+        "metadata": {
+            "transcriber": {
+                "name": "test_validator",
+                "version": "0.1.0"
             },
-            "transcript": {
-                "segments": [
-                    {
-                        "start": 0.0,
-                        "end": 5.0,
-                        "text": "Sample text"
-                    }
-                ]
-            }
+            "created_at": "2023-10-19T15:30:00Z",
+            "unexpected_field": "unexpected"
+        },
+        "transcript": {
+            "segments": [
+                {
+                    "start": 0.0,
+                    "end": 5.0,
+                    "text": "Sample text"
+                }
+            ]
         }
-        # Assuming the schema does not allow additional properties in metadata
-        with self.assertRaises(ValidationError):
-            validate(instance=stj_data, schema=self.schema)
+    }
+    with pytest.raises(ValidationError):
+        validate(instance=stj_data, schema=schema)
 
-    def test_schema_error(self):
-        # Test with an invalid schema
-        invalid_schema = {
-            "type": "invalid_type"  # Invalid schema
-        }
-        stj_data = {}
-        with self.assertRaises(SchemaError):
-            validate(instance=stj_data, schema=invalid_schema)
-
-if __name__ == '__main__':
-    unittest.main()
+def test_schema_error():
+    # Test with an invalid schema
+    invalid_schema = {
+        "type": "invalid_type"  # Invalid schema
+    }
+    stj_data = {}
+    with pytest.raises(SchemaError):
+        validate(instance=stj_data, schema=invalid_schema)
