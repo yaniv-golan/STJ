@@ -1,6 +1,6 @@
 # Standard Transcription JSON (STJ) Format Specification
 
-**Version**: 0.3
+**Version**: 0.4  
 **Date**: 2024-10-21
 
 ## Introduction
@@ -171,10 +171,11 @@ Each segment object includes:
 - **language** *(string, optional)*: Language code for the segment (ISO 639-1 or ISO 639-3).
 - **style_id** *(string, optional)*: The `id` of the style from the `styles` list.
 - **words** *(array, optional)*: List of word-level details.
-  - **start** *(number, optional)*: Start time of the word in seconds.
-  - **end** *(number, optional)*: End time of the word in seconds.
+  - **start** *(number, mandatory)*: Start time of the word in seconds.
+  - **end** *(number, mandatory)*: End time of the word in seconds.
   - **text** *(string, mandatory)*: The word text.
   - **confidence** *(number, optional)*: Confidence score for the word (0.0 - 1.0).
+- **word_timing_mode** *(string, optional)*: Indicates the completeness of word-level timing data within the segment.
 - **additional_info** *(object, optional)*: Any additional information about the segment.
 
 ##### Example
@@ -188,7 +189,14 @@ Each segment object includes:
     "speaker_id": "Speaker1",
     "confidence": 0.95,
     "language": "fr",
-    "style_id": "Style1"
+    "style_id": "Style1",
+    "word_timing_mode": "complete",
+    "words": [
+      { "start": 0.0, "end": 1.0, "text": "Bonjour" },
+      { "start": 1.0, "end": 2.0, "text": "tout" },
+      { "start": 2.0, "end": 3.0, "text": "le" },
+      { "start": 3.0, "end": 4.0, "text": "monde." }
+    ]
   },
   {
     "start": 5.1,
@@ -196,7 +204,12 @@ Each segment object includes:
     "text": "Gracias por estar aquí hoy.",
     "speaker_id": "Speaker2",
     "confidence": 0.93,
-    "language": "es"
+    "language": "es",
+    "word_timing_mode": "partial",
+    "words": [
+      { "start": 5.1, "end": 5.5, "text": "Gracias" }
+      // Remaining words are not included
+    ]
   },
   {
     "start": 10.1,
@@ -204,7 +217,13 @@ Each segment object includes:
     "text": "Hello everyone, and welcome.",
     "speaker_id": "Speaker3",
     "confidence": 0.92,
-    "language": "en"
+    "language": "en",
+    "words": [
+      { "start": 10.1, "end": 10.5, "text": "Hello" },
+      { "start": 10.6, "end": 11.0, "text": "everyone," },
+      { "start": 11.1, "end": 11.5, "text": "and" },
+      { "start": 11.6, "end": 12.0, "text": "welcome." }
+    ]
   }
 ]
 ```
@@ -293,11 +312,30 @@ In this example:
 ## Field Definitions and Constraints
 
 - **Time Fields**: All time-related fields (`start`, `end`) are in seconds and can have fractional values to represent milliseconds.
+  - **Constraints**:
+    - `start` must not be greater than `end`.
+    - Segments should not overlap in time.
+    - For zero-duration words or segments (`start` equals `end`), include the appropriate duration field (`word_duration` or `segment_duration`) set to `"zero"`.
+
 - **Confidence Scores**: Confidence scores are floating-point numbers between `0.0` (no confidence) and `1.0` (full confidence). They are optional but recommended.
+
 - **Language Codes**: Use ISO 639-1 (two-letter codes) or ISO 639-3 (three-letter codes) for language representation.
+
 - **Speaker IDs**: If `speaker_id` is used, it must match an `id` in the `speakers` list.
+
 - **Style IDs**: If `style_id` is used, it must match an `id` in the `styles` list.
-- **Timestamps**: `start` should be less than or equal to `end`. Segments should not overlap in time.
+
+- **Text Fields**: `text` fields should be in plain text format. Special formatting or markup should be handled via the `styles` mechanism.
+
+- **Validation Requirements**:
+  - **Segment-Level Validation**:
+    - Required fields are present.
+    - Time fields are valid.
+    - References (`speaker_id`, `style_id`) are valid.
+  - **Word-Level Validation**:
+    - Words are within segment times.
+    - `word_timing_mode` is correctly set.
+    - Text consistency is maintained as per `word_timing_mode`.
 
 ## Representing Confidence
 

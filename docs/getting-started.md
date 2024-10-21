@@ -32,4 +32,3 @@ python tools/python/stj_to_srt.py examples/simple.stj.json output.srt
 [API Reference](./api-reference.md)
 
 [Best Practices](./best-practices.md)
-
