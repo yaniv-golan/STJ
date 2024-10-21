@@ -39,9 +39,8 @@ jobs:
       with:
         node-version: '16'
     - name: Install dependencies
-      run: |
-        cd tools/javascript/
-        npm install
+      working-directory: ./tools/javascript
+      run: npm install
     - name: Run JavaScript tests
-      run: |
-        npm test
+      working-directory: ./tools/javascript
+      run: npm test
