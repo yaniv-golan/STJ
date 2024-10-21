@@ -3,9 +3,11 @@
   "title": "Standard Transcription JSON Schema",
   "type": "object",
   "required": ["metadata", "transcript"],
+  "additionalProperties": false,
   "properties": {
     "metadata": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["transcriber", "created_at"],
       "properties": {
         "transcriber": {
