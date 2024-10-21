@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run stj_to_srt",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tools/python/stj_to_srt.py",
+            "args": [
+                "${workspaceFolder}/examples/simple.stj.json",
+                "${workspaceFolder}/tests/expected_outputs/expected_simple.srt"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
