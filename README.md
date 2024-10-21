@@ -78,7 +78,7 @@ To run the Python tests:
 
 ```bash
 cd tests/python/
-python -m unittest discover
+pytest
 ```
 
 ### JavaScript Tests

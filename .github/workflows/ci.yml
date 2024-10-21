@@ -28,7 +28,7 @@ jobs:
     - name: Run Python tests
       run: |
         cd tests/python/
-        python -m unittest discover
+        pytest
 
   test-javascript:
     runs-on: ubuntu-latest

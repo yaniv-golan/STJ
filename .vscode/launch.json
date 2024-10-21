@@ -11,6 +11,23 @@
                 "${workspaceFolder}/tests/expected_outputs/expected_simple.srt"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run test_stj_to_srt",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/python/test_stj_to_srt.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run pytest",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/-m pytest",
+            "args": [
+                "${workspaceFolder}/tests/python/"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }

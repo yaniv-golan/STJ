@@ -87,6 +87,7 @@ To verify that the tools are installed correctly, you can run the following comm
 
   ```bash
   python stj_validator.py ../../examples/simple.stj.json ../../spec/schema/stj-schema.json
+  pytest
   ```
 
 - **JavaScript Validator:**

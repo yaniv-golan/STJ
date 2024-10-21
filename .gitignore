@@ -168,3 +168,4 @@ dist/
 # General
 .DS_Store
 .env
+.vscode/
