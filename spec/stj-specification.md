@@ -1,7 +1,7 @@
 # Standard Transcription JSON (STJ) Format Specification
 
-**Version**: 0.4  
-**Date**: 2024-10-22
+**Version**: 0.5
+**Date**: 2024-10-24
 
 ## Introduction
 
@@ -11,6 +11,7 @@ The STJ format includes detailed transcription segments with associated metadata
 
 **File Extension**: `.stj.json`  
 **MIME Type**: `application/vnd.stj+json`
+**Character Encoding**: UTF-8
 
 ## Objectives
 
@@ -24,6 +25,52 @@ The STJ format includes detailed transcription segments with associated metadata
 ## Specification
 
 ### Version History
+
+**Version 0.5 Changes**:
+
+- **Renamed** `additional_info` fields to `extensions` throughout the specification.
+  
+- **Introduced** namespaces within the `extensions` field for structured custom data.
+  
+- **Reserved** specific namespaces (`stj`, `webvtt`, `ttml`, `ssa`, `srt`, `dfxp`, `smptett`) for future official use.
+  
+- **Revised** examples and validation rules to reflect the new `extensions` structure.
+  
+- **Updated** style definitions to use namespaced `extensions` instead of `x_` prefixed properties.
+  
+- **Added** detailed **Speaker ID Requirements**:
+  - **Defined** format specifications for `speaker_id`, including allowed characters, length constraints, uniqueness, and case sensitivity.
+  - **Provided** guidelines for representing anonymous speakers consistently.
+  - **Expanded** the **"Speaker IDs"** section under **"Field Definitions and Constraints"** to include these requirements.
+  - **Updated** the **"Speakers"** subsection under **"Transcript Section"** to reference the new **"Speaker ID Requirements"**.
+  - **Updated** examples and validation rules to reflect the new speaker ID requirements.
+  
+- **Added** comprehensive character encoding requirements, including:
+  - Mandatory UTF-8 encoding with optional BOM.
+  - String content validation rules.
+  - Unicode normalization requirements.
+  - Character encoding validation requirements.
+  
+- **Changed** zero-duration segment representation from `segment_duration` in `extensions` to a boolean `is_zero_duration` field.
+  
+- **Changed** zero-duration word representation from `word_duration` in `extensions` to a boolean `is_zero_duration` field.
+  
+- **Clarified** default behavior of the `word_timing_mode` field when omitted:
+  - Treated as `"complete"` when the `words` array is present with complete coverage.
+  - Treated as `"none"` when the `words` array is absent.
+  - Invalid when the `words` array is present but incomplete (must explicitly specify `"partial"`).
+  
+- **Added** explicit validation rules for each `word_timing_mode` value.
+  
+- **Added** comprehensive time format requirements and constraints.
+  
+- **Added** specific implementation requirements for handling time values.
+  
+- **Clarified** time value precision and range requirements.
+  
+- **Consolidated** all time-related validation requirements.
+  
+- **Standardized** cross-references to the **Time Format Requirements** section throughout the document.
 
 **Version 0.4 Changes**:
 
@@ -62,12 +109,14 @@ The `"metadata"` object includes optional and required fields providing context 
   - **version** *(string, mandatory)*: Version of the transcriber application.
 - **created_at** *(string, mandatory)*: ISO 8601 timestamp indicating when the transcription was created.
 - **source** *(optional)*: Information about the source of the audio/video.
-  - **uri** *(string, optional)*: The URI or file path of the source media.
+  - **uri** *(string, optional)*: The URI of the source media.
+    - MUST conform to the **URI Format Requirements** specified in the **Field Definitions and Constraints** section.
   - **duration** *(number, optional)*: Duration of the media in seconds.
   - **languages** *(array of strings, optional)*: List of languages present in the source media, ordered by prevalence.
 - **languages** *(array of strings, optional)*: List of languages present in the transcription, ordered by prevalence.
 - **confidence_threshold** *(number, optional)*: Confidence threshold used during transcription (0.0 - 1.0).
-- **additional_info** *(object, optional)*: A key-value map for any additional metadata.
+- **extensions** *(object, optional)*: A key-value map for any additional metadata.
+  - MUST conform to the **Extensions Field Requirements** specified in the **Field Definitions and Constraints** section.
 
 #### Clarification on `languages` Fields
 
@@ -99,9 +148,11 @@ The STJ format includes two `languages` fields within the `metadata` section to 
   },
   "languages": ["fr"],          // Transcription language: French
   "confidence_threshold": 0.6,
-  "additional_info": {
-    "project": "International Conference",
-    "client": "Global Events Inc."
+  "extensions": {
+    "project_info": {
+      "project": "International Conference",
+      "client": "Global Events Inc."
+    }
   }
 }
 ```
@@ -123,8 +174,9 @@ The `"transcript"` object contains the transcription data, including speaker inf
 Each speaker object includes:
 
 - **id** *(string, mandatory)*: Unique identifier for the speaker.
+  - MUST conform to the **Speaker ID Requirements** specified in the **Field Definitions and Constraints** section.
 - **name** *(string, optional)*: Display name of the speaker.
-- **additional_info** *(object, optional)*: Any additional information about the speaker.
+- **extensions** *(object, optional)*: Any additional information about the speaker.
 
 ##### Example
 
@@ -132,40 +184,121 @@ Each speaker object includes:
 "speakers": [
   { "id": "Speaker1", "name": "Dr. Smith" },
   { "id": "Speaker2", "name": "Señora García" },
-  { "id": "Speaker3", "name": "Monsieur Dupont" }
+  { "id": "Speaker3", "name": "Monsieur Dupont" },
+  { "id": "Speaker4", "name": "Unknown" } // Anonymous speaker
 ]
 ```
 
 #### Styles
 
-Each style object includes:
+Each style object defines text presentation rules that can be referenced by segments. Basic formatting features are defined in a format-agnostic way, while advanced features can be implemented using `extensions`.
 
-- **id** *(string, mandatory)*: Unique identifier for the style.
-- **formatting** *(object, optional)*: Text formatting options (e.g., bold, italic).
-- **positioning** *(object, optional)*: On-screen positioning options.
-- **additional_info** *(object, optional)*: Any additional information about the style.
+##### Required Fields
 
-##### Example
+- **id** *(string, mandatory)*: Unique identifier for the style
+  - MUST be non-empty
+  - MUST be unique within the styles array
+
+##### Optional Fields
+
+- **text** *(object, optional)*: Text appearance
+  - **color** *(string, optional)*: Text color in #RRGGBB format
+  - **background** *(string, optional)*: Background color in #RRGGBB format
+  - **bold** *(boolean, optional)*: Bold text
+  - **italic** *(boolean, optional)*: Italic text
+  - **underline** *(boolean, optional)*: Underlined text
+  - **size** *(string, optional)*: Size as percentage, e.g. "120%"
+
+- **display** *(object, optional)*: Visual presentation settings
+  - **align** *(string, optional)*: Text alignment
+    - Allowed values: `"left"`, `"center"`, `"right"`
+    - Default: `"left"`
+  - **vertical** *(string, optional)*: Vertical position
+    - Allowed values: `"top"`, `"middle"`, `"bottom"`
+    - Default: `"bottom"`
+  - **position** *(object, optional)*: Precise positioning
+    - **x** *(string, optional)*: Horizontal position as percentage
+    - **y** *(string, optional)*: Vertical position as percentage
+
+- **extensions** *(object, optional)*: Additional styling information
+  - MAY contain format-specific styling properties organized under namespaces.
+  - Format-specific properties SHOULD be placed within appropriately named namespaces in `extensions`.
+  - Examples:
+    - Under the `custom_webvtt` namespace:
+
+      ```json
+      "extensions": {
+        "custom_webvtt": {
+          "line": "auto",
+          "position": "50%",
+          "size": "100%"
+        }
+      }
+      ```
+
+    - Under the `custom_ssa` namespace:
+
+      ```json
+      "extensions": {
+        "custom_ssa": {
+          "effect": "karaoke",
+          "outline": 2,
+          "shadow": 1
+        }
+      }
+      ```
+
+##### Examples
+
+Basic style:
 
 ```json
-"styles": [
-  {
-    "id": "Style1",
-    "formatting": {
-      "bold": true,
-      "italic": false,
-      "underline": false,
-      "color": "#FFFFFF",
-      "background_color": "#000000"
-    },
-    "positioning": {
-      "align": "center",
-      "line": "auto",
-      "position": "50%",
-      "size": "100%"
+{
+  "id": "speaker_1",
+  "text": {
+    "color": "#2E4053",
+    "bold": true,
+    "size": "110%"
+  }
+}
+```
+
+Style with positioning:
+
+```json
+{
+  "id": "caption_style",
+  "text": {
+    "color": "#FFFFFF",
+    "background": "#000000"
+  },
+  "display": {
+    "align": "center",
+    "vertical": "bottom",
+    "position": {
+      "x": "50%",
+      "y": "90%"
     }
   }
-]
+}
+```
+
+Style with format-specific features:
+
+```json
+{
+  "id": "advanced_style",
+  "text": {
+    "color": "#FFFFFF"
+  },
+  "extensions": {
+    "custom_ssa": {
+      "effect": "karaoke",
+      "outline": 2,
+      "shadow": 1
+    }
+  }
+}
 ```
 
 #### Segments
@@ -185,7 +318,7 @@ Each segment object includes:
   - **text** *(string, mandatory)*: The word text.
   - **confidence** *(number, optional)*: Confidence score for the word (0.0 - 1.0).
 - **word_timing_mode** *(string, optional)*: Indicates the completeness of word-level timing data within the segment.
-- **additional_info** *(object, optional)*: Any additional information about the segment.
+- **extensions** *(object, optional)*: Any additional information about the segment.
 
 ##### Example
 
@@ -275,7 +408,7 @@ Imagine a video where presenters speak in English and Spanish, and the transcrip
     "languages": ["en", "es"]
   },
   "languages": ["fr", "de"],
-  "additional_info": { ... }
+  "extensions": { ... }
 },
 "transcript": {
   "segments": [
@@ -322,84 +455,533 @@ In this example:
 
 ## Field Definitions and Constraints
 
-- **Time Fields**:
-  - All time-related fields (`start`, `end`) are in seconds and can have fractional values to represent milliseconds.
-  - **Constraints**:
-    - `start` must not be greater than `end`.
-    - Segments should not overlap in time.
-    - For zero-duration words or segments (`start` equals `end`), include the appropriate duration field (`word_duration` or `segment_duration`) set to `"zero"`.
-- **Confidence Scores**:
-  - Confidence scores are floating-point numbers between `0.0` (no confidence) and `1.0` (full confidence). They are optional but recommended.
-- **Language Codes**:
-  - Use ISO 639-1 (two-letter codes) or ISO 639-3 (three-letter codes) for language representation.
-- **Speaker IDs**:
-  - If `speaker_id` is used, it must match an `id` in the `speakers` list.
-- **Style IDs**:
-  - If `style_id` is used, it must match an `id` in the `styles` list.
-- **Text Fields**:
-  - `text` fields should be in plain text format. Special formatting or markup should be handled via the `styles` mechanism.
-- **`word_timing_mode` Field**:
-  - **Purpose**: Indicates the completeness of word-level timing data within the segment.
-  - **Allowed Values**:
-    - `"complete"`: All words in the segment have timing data.
-    - `"partial"`: Only some words have timing data.
-    - `"none"`: No word-level timing data is provided.
-  - **Constraints**:
-    - If `words` array is present and covers all words, `word_timing_mode` may be omitted (defaulting to `"complete"`).
-    - If `words` array is present but does not cover all words, `word_timing_mode` must be set to `"partial"`.
-    - If `words` array is absent, `word_timing_mode` should be `"none"` or omitted.
+### Time Format Requirements
+
+All time values in the STJ format (`start` and `end` fields) must follow these requirements:
+
+#### Format Specifications
+
+- Must be represented as non-negative decimal numbers
+- Must have a precision of up to 3 decimal places (millisecond precision)
+- Must not exceed 6 significant digits before the decimal point
+- Values must be in the range [0.000, 999999.999]
+- Leading zeros before the decimal point are allowed but not required
+- Trailing zeros after the decimal point are allowed but not required
+- The decimal point must be present if there are decimal places
+- Scientific notation is not allowed
+
+#### Basic Constraints
+
+- For any segment or word:
+  - `start` must not be greater than `end`
+  - Both `start` and `end` must be present and valid according to format specifications
+- For zero-duration items (`start` equals `end`):
+  - Must include `is_zero_duration`: `true`
+  - For segments:
+    - Must not contain a `words` array
+    - Must not specify a `word_timing_mode`
+- The `is_zero_duration` field:
+  - Must be `true` if and only if `start` equals `end`
+  - Must be `false` or omitted for items where `start` does not equal `end`
+  - Must not be included with value `false` when `start` equals `end`
+
+#### Examples of Valid Time Values
+
+- `0` (zero seconds)
+- `0.0` (zero seconds)
+- `0.000` (zero seconds with full precision)
+- `1.5` (one and a half seconds)
+- `10.100` (ten and one hundred milliseconds)
+- `999999.999` (maximum allowed value)
+
+#### Examples of Invalid Time Values
+
+- `-1.0` (negative values not allowed)
+- `1.5e3` (scientific notation not allowed)
+- `1000000.0` (exceeds maximum value)
+- `1.2345` (exceeds maximum precision)
+- `1,5` (incorrect decimal separator)
+
+### Character Encoding Requirements
+
+#### Basic Requirements
+
+- Files MUST be encoded in UTF-8
+- The UTF-8 Byte Order Mark (BOM) is optional
+- JSON string values MUST follow RFC 8259 encoding rules
+- The full Unicode character set MUST be supported
+
+#### String Content Requirements
+
+- All string values MUST:
+  - Be valid UTF-8 encoded text
+  - Properly escape control characters (U+0000 through U+001F)
+  - Properly handle surrogate pairs for supplementary plane characters
+- Forward slash (`/`) characters MAY be escaped but escaping is not required
+- Unicode normalization:
+  - All string values SHOULD be normalized to Unicode Normalization Form C (NFC)
+  - Applications MUST preserve the normalization form of input text
+  - Applications MAY normalize text for comparison or search operations
+
+### Confidence Scores
+
+Confidence scores are floating-point numbers between `0.0` (no confidence) and `1.0` (full confidence). They are optional but recommended.
+
+### Language Codes
+
+ISO 639-1 (two-letter codes) is the primary standard and MUST be used when the language has an ISO 639-1 code.
+
+- Example: Use "en" for English, "fr" for French, "es" for Spanish
+
+ISO 639-3 (three-letter codes) MUST only be used for languages that do not have an ISO 639-1 code.
+
+- Example: Use "yue" for Cantonese (no ISO 639-1 code), but use "zh" for Mandarin Chinese (has ISO 639-1 code)
+
+#### Consistency Requirements
+
+- A single STJ file MUST NOT mix ISO 639-1 and ISO 639-3 codes for the same language
+- All references to a specific language within a file MUST use the same code consistently
+- When a language has both ISO 639-1 and ISO 639-3 codes, the ISO 639-1 code MUST be used
+
+#### Application Requirements
+
+Applications MUST:
+
+- Process both ISO 639-1 and ISO 639-3 codes
+- Validate that:
+  - ISO 639-1 codes are used when available
+  - ISO 639-3 codes are only used for languages without ISO 639-1 codes
+  - Language codes are used consistently throughout the file
+- Reject files that:
+  - Use ISO 639-3 codes for languages that have ISO 639-1 codes
+  - Mix different standards for the same language
+  - Contain invalid language codes
+
+### URI Format Requirements
+
+#### Purpose
+
+Defines the format and constraints for the `uri` field in the `metadata.source` object.
+
+#### Format Specifications
+
+- **Type**: String representing a Uniform Resource Identifier (URI) as defined in [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986.html).
+- **Allowed Schemes**:
+  - **Recommended**:
+    - `http`
+    - `https`
+    - `file`
+  - **Optional**:
+    - Other schemes (e.g., `ftp`, `s3`, `rtsp`) MAY be used if appropriate.
+- **Absolute URIs**:
+  - The `uri` SHOULD be an absolute URI, including the scheme component.
+  - Examples:
+    - `"http://example.com/media/video.mp4"`
+    - `"https://example.com/media/audio.mp3"`
+    - `"file:///C:/Media/video.mp4"` (Windows)
+    - `"file:///home/user/media/audio.mp3"` (Unix-like systems)
+- **Relative URIs**:
+  - Relative URIs or file paths SHOULD NOT be used.
+  - If a relative URI is provided, consuming applications MUST resolve it relative to a known base URI.
+  - **Note**: Relative URIs can lead to ambiguity and are discouraged.
+
+#### Validation Rules
+
+- The `uri` MUST conform to the syntax defined in RFC 3986.
+- Implementations SHOULD validate the URI format and report errors if invalid.
+- **Scheme Support**:
+  - **Required Support**:
+    - Implementations MUST support `http` and `https` schemes.
+  - **Optional Support**:
+    - Support for other schemes is OPTIONAL and may vary between implementations.
+
+#### Security Considerations
+
+- **Privacy**:
+  - Be cautious when including URIs that may reveal sensitive information, such as local file paths or internal network addresses.
+  - Consider omitting the `uri` or sanitizing it if privacy is a concern.
+- **Security Risks**:
+  - Applications consuming STJ files SHOULD handle URIs carefully to avoid security risks such as directory traversal or accessing unauthorized resources.
+
+#### Examples
+
+- **HTTP URI**:
+
+  ```json
+  "uri": "http://example.com/media/video.mp4"
+  ```
+
+- **HTTPS URI**:
+
+  ```json
+  "uri": "https://example.com/media/audio.mp3"
+  ```
+
+- **File URI (Windows Path)**:
+
+  ```json
+  "uri": "file:///C:/Media/video.mp4"
+  ```
+
+- **File URI (Unix Path)**:
+
+  ```json
+  "uri": "file:///home/user/media/audio.mp3"
+  ```
+
+- **S3 URI (Optional Scheme)**:
+
+  ```json
+  "uri": "s3://bucket-name/path/to/object"
+  ```
+
+### Speaker IDs
+
+#### Format Specifications
+
+- **Type**: String
+- **Allowed Characters**: Letters (A-Z, a-z), digits (0-9), underscores (_), and hyphens (-).
+- **Length Constraints**:
+  - Minimum length: 1 character
+  - Maximum length: 64 characters
+- **Uniqueness**:
+  - Speaker IDs MUST be unique within the `speakers` list.
+  - `speaker_id` references in segments MUST match an `id` in the `speakers` list.
+- **Case Sensitivity**:
+  - Speaker IDs are case-sensitive; `Speaker1` and `speaker1` are considered different IDs.
+- **Format Recommendations**:
+  - Use meaningful identifiers when possible, e.g., `Speaker_JohnDoe`.
+  - For anonymous speakers, use generic IDs like `Speaker1`, `Speaker2`, etc.
+
+#### Representing Anonymous Speakers
+
+- **When the Speaker is Unknown or Anonymous**:
+  - Use a consistent placeholder ID, such as `Speaker1`, `Speaker2`, etc.
+  - The `name` field MAY be omitted or set to a placeholder like `"Unknown"` or `"Anonymous"`.
+- **Consistency**:
+  - Maintain consistent IDs for anonymous speakers throughout the transcript to differentiate between different speakers.
+  - If speaker diarization is uncertain, it is acceptable to assign the same `speaker_id` to multiple segments where the speaker is believed to be the same.
+
+#### Examples
+
+- **Known Speaker**:
+
+  ```json
+  {
+    "id": "Speaker_JohnDoe",
+    "name": "John Doe"
+  }
+  ```
+
+- **Anonymous Speaker**:
+
+  ```json
+  {
+    "id": "Speaker1",
+    "name": "Unknown"
+  }
+  ```
+
+- **Multiple Anonymous Speakers**:
+
+  ```json
+  "speakers": [
+    { "id": "Speaker1", "name": "Unknown" },
+    { "id": "Speaker2", "name": "Unknown" },
+    { "id": "Speaker3", "name": "Unknown" }
+  ]
+  ```
+
+#### Validation Rules
+
+- **ID Format Validation**:
+  - IDs MUST only contain allowed characters.
+  - IDs MUST meet the length constraints.
+- **Uniqueness Validation**:
+  - IDs in the `speakers` list MUST be unique.
+  - Duplicate IDs MUST result in a validation error.
+- **Reference Validation**:
+  - All `speaker_id` references in segments MUST match an `id` in the `speakers` list.
+  - Invalid references MUST result in a validation error.
+
+#### Implementation Notes
+
+- **Applications** SHOULD provide meaningful error messages when validation fails due to speaker ID issues.
+- **When Generating STJ Files**:
+  - Ensure that speaker IDs conform to the specified format requirements.
+  - Assign consistent IDs to anonymous speakers to maintain differentiation.
+
+### Style IDs
+
+If `style_id` is used, it must match an `id` in the `styles` list.
+
+### Text Fields
+
+`text` fields should be in plain text format. Special formatting or markup should be handled via the `styles` mechanism.
+
+### Word Timing Mode Field
+
+#### Purpose
+
+Indicates the completeness of word-level timing data within the segment.
+
+#### Allowed Values
+
+- `"complete"`: All words in the segment have timing data
+- `"partial"`: Only some words have timing data
+- `"none"`: No word-level timing data is provided
+
+#### Default Behavior
+
+- When omitted and `words` array is present with complete coverage: treated as `"complete"`
+- When omitted and `words` array is absent: treated as `"none"`
+- When omitted and `words` array is present but incomplete: invalid - must explicitly specify `"partial"`
+
+#### Constraints
+
+- For `"complete"`: All words must have timing data
+- For `"partial"`: Some words must have timing data
+- For `"none"`: Must not include `words` array
+
+### Extensions Field Requirements
+
+#### Purpose
+
+The `extensions` field allows for the inclusion of custom, application-specific metadata and format-specific properties without affecting compatibility with other implementations.
+
+#### Structure
+
+- The `extensions` field, if present, **MUST** be a JSON object.
+- Each key in `extensions` **MUST** represent a namespace and **MUST** be a non-empty string.
+- The value corresponding to each namespace **MUST** be a JSON object containing key-value pairs specific to that namespace.
+
+#### Namespaces
+
+- **Namespace Naming:**
+  - Namespaces **SHOULD** be concise and reflect the application, format, or organization.
+  - Examples include `myapp`, `companyname`, `customformat`.
+- **Reserved Namespaces:**
+  - The following namespaces are **RESERVED** for future use by the STJ specification and **MUST NOT** be used for custom data:
+    - `stj` (reserved for STJ specification extensions)
+    - `webvtt` (reserved for WebVTT format mappings)
+    - `ttml` (reserved for TTML format mappings)
+    - `ssa` (reserved for SSA/ASS format mappings)
+    - `srt` (reserved for SubRip format mappings)
+    - `dfxp` (reserved for DFXP/Timed Text format mappings)
+    - `smptett` (reserved for SMPTE-TT format mappings)
+- **Developer Guidance:**
+  - Developers who need to include format-specific properties before official definitions are available may:
+    - Use a custom namespace that clearly indicates its provisional nature, such as `custom_webvtt` or `experimental_ttml`.
+    - Be prepared to migrate their data to the official namespace once the STJ specification provides the definitions.
+
+#### Constraints
+
+- Applications **MUST** ignore any namespaces in `extensions` that they do not recognize.
+- The `extensions` field **SHOULD NOT** include essential data required for basic functionality.
+- Nested objects and arrays **ARE ALLOWED** within each namespace.
+- Keys within namespaces **MUST NOT** duplicate or conflict with standard fields of the containing object.
+- **Reserved Namespaces Validation:**
+  - Namespaces listed as **RESERVED** in the specification **MUST NOT** be used by applications for custom data.
+  - Applications **MUST** report an error if a reserved namespace is used.
+
+#### Examples
+
+- **In a `segment` object:**
+
+  ```json
+  "extensions": {
+    "myapp": {
+      "custom_property": "value",
+      "analysis_data": {
+        "sentiment_score": 0.85,
+        "keywords": ["innovation", "technology"]
+      }
+    },
+    "analytics": {
+      "emotion": "happy",
+      "confidence": 0.9
+    }
+  }
+  ```
+
+- **In a `style` object with format-specific properties:**
+
+  ```json
+  {
+    "id": "caption_style",
+    "text": {
+      "color": "#FFFFFF",
+      "background": "#000000"
+    },
+    "display": {
+      "align": "center",
+      "vertical": "bottom"
+    },
+    "extensions": {
+      "custom_webvtt": {
+        "line": "auto",
+        "position": "50%",
+        "size": "100%"
+      },
+      "myapp": {
+        "custom_style_property": "value"
+      }
+    }
+  }
+  ```
+
+- **In a `metadata` object:**
+
+  ```json
+  "extensions": {
+    "project_info": {
+      "project": "International Conference",
+      "client": "Global Events Inc."
+    },
+    "notes": {
+      "review_status": "approved",
+      "reviewer": "John Doe"
+    }
+  }
+  ```
+
+**Note:** Standard fields defined in the STJ specification **MUST NOT** be duplicated within any namespace in `extensions`. For example, including a key `"start"` within a namespace is prohibited if it conflicts with the mandatory `"start"` field of the segment.
+
+## Implementation Requirements
+
+### Time Value Processing
+
+Implementations MUST:
+
+- Parse time values with up to 3 decimal places
+- Preserve the precision of input values up to 3 decimal places
+- Round any input with more than 3 decimal places to 3 decimal places using IEEE 754 round-to-nearest-even
+- Validate all time values according to the Time Format Requirements section
+
+Implementations MUST reject files that contain any of the following:
+
+- Negative time values
+- Values exceeding 999999.999 seconds
+- Time values using scientific notation
+- Overlapping segments
 
 ## Validation Requirements
 
 ### Segment-Level Validation
 
 - **Required Fields**:
-  - `start` and `end` times are present and `start` ≤ `end`.
-  - `text` is present and non-empty.
+  - `start` and `end` times MUST conform to the Time Format Requirements section
+  - `text` MUST be present and non-empty
 - **References**:
-  - `speaker_id`, if present, must match an `id` in the `speakers` list.
-  - `style_id`, if present, must match an `id` in the `styles` list.
-- **Timing**:
-  - Segments should not overlap in time.
-- **Zero-Length Segments**:
-  - If `start` equals `end`, include `segment_duration` set to `"zero"` in `additional_info`.
+  - `speaker_id`, if present, MUST match an `id` in the `speakers` list
+  - `style_id`, if present, MUST match an `id` in the `styles` list
+- **Segment Ordering**:
+  - Segments MUST be ordered by their `start` times in ascending order
+  - For segments with identical start times, they MUST be ordered by their end times in ascending order
+- **Segment Overlap**:
+  - Segments MUST NOT overlap in time
+  - For any two segments S1 and S2 where S1 appears before S2 in the segments array:
+    - S1.end MUST be less than or equal to S2.start
+    - Examples of valid segment ordering:
+      - Adjacent segments: S1(0.0, 1.0), S2(1.0, 2.0)
+      - Segments with gap: S1(0.0, 1.0), S2(2.0, 3.0)
+    - Examples of invalid segment ordering:
+      - Overlapping segments: S1(0.0, 2.0), S2(1.0, 3.0)
+      - Out of order segments: S1(1.0, 2.0), S2(0.0, 3.0)
+- **Zero-Duration Segments**:
+  - MUST follow the zero-duration requirements defined in the Time Format Requirements section
+  - Zero-duration segments MAY share the same timestamp
 
 ### Word-Level Validation
 
 - **When `words` array is present**:
-  - Each word object must have `text`, `start`, and `end`.
-  - Word `start` and `end` times must be within the segment's `start` and `end` times.
-  - Words should be ordered by `start` time.
-  - Word timings should not overlap.
-- **`word_timing_mode` Field**:
-  - **When `word_timing_mode` is `"complete"` or omitted**:
-    - The concatenation of all `text` fields in `words` must match the segment's `text`, except for differences in whitespace or punctuation.
-  - **When `word_timing_mode` is `"partial"`**:
-    - The `text` fields in `words` must be a subset of the words in the segment's `text`, in the same order.
-- **Zero-Length Words**:
-  - If a word's `start` equals `end`, include `word_duration` set to `"zero"` in `additional_info`.
+  - Each word object must have `text`, `start`, and `end`
+  - All time values must conform to the Time Format Requirements section
+  - Word timing constraints:
+    - Word times must be within the parent segment's time range
+    - Words must be ordered by `start` time
+    - Word timings must not overlap
+- **Word Timing Mode Requirements**:
+  - When `"complete"` (or omitted with complete coverage):
+    - The concatenation of all `text` fields in `words` must match the segment's `text`, except for differences in whitespace or punctuation
+  - When `"partial"`:
+    - The `text` fields in `words` must be a subset of the words in the segment's `text`, in the same order
+  - When `"none"` (or omitted without `words` array):
+    - Must not contain `words` array
+- **Zero-Duration Words**:
+  - Must follow the zero-duration requirements defined in the Time Format Requirements section
 
-### Overall Consistency
+### General Validation
 
-- **Language Codes**:
-  - All language codes must be valid ISO 639 codes.
-- **Confidence Scores**:
-  - Confidence scores, if present, must be within the range [0.0, 1.0].
-- **References**:
-  - All `speaker_id` and `style_id` references must correspond to valid entries in the `speakers` and `styles` lists, respectively.
-- **Unique IDs**:
-  - All IDs used in `speakers` and `styles` must be unique within their respective arrays.
+- **URI Validation Requirements**:
+  - The `uri` field in `metadata.source` MUST conform to the **URI Format Requirements** specified in the **Field Definitions and Constraints** section.
+  - Implementations SHOULD validate the URI format according to RFC 3986.
+  - Invalid URIs SHOULD result in a validation error or warning.
+  - **Scheme Support**:
+    - Implementations MUST support `http` and `https` schemes.
+    - Support for other schemes is OPTIONAL.
+  - **Relative URIs**:
+    - Relative URIs SHOULD NOT be used.
+    - If present, they MUST be resolved relative to a known base URI by the consuming application.
 
-### Additional Validation
+- **Language Code Requirements**:
+  - All language codes must be valid ISO 639 codes
+  - Language codes must be consistent with the requirements defined in the Language Codes section
 
-- **Time Fields**:
-  - All time fields (`start`, `end`) must be non-negative numbers.
-- **Segment Ordering**:
-  - Segments should be ordered by their `start` times.
-- **No Overlapping Segments**:
-  - Segments should not overlap in time.
-- **Additional Info Fields**:
-  - The `additional_info` field, if used, should be an object containing key-value pairs.
+- **Confidence Score Requirements**:
+  - Confidence scores, if present, must be within the range [0.0, 1.0]
+
+- **Reference Requirements**:
+  - **Speaker IDs**:
+    - All `speaker_id` references in segments MUST correspond to valid `id` entries in the `speakers` list.
+    - All `id` values in the `speakers` list MUST conform to the **Speaker ID Requirements** specified in the **Field Definitions and Constraints** section.
+    - All IDs in the `speakers` array MUST be unique.
+    - IDs MUST only contain allowed characters and meet length constraints.
+  - **Style IDs**:
+    - All `style_id` references must correspond to valid entries in the `styles` list.
+    - All IDs in the `styles` array MUST be unique.
+
+- **Character Encoding Requirements**:
+  - All text content must be valid UTF-8
+  - All JSON string values must follow RFC 8259 encoding rules
+  - Control characters must be properly escaped
+  - Surrogate pairs must be properly formed
+  - BOM must be handled correctly if present
+
+### Extensions Field Validation
+
+- **Structure Validation:**
+  - The `extensions` field, if present, **MUST** be a JSON object.
+  - Namespaces **MUST** be strings and **MUST NOT** be empty.
+  - Values corresponding to namespaces **MUST** be JSON objects.
+
+- **Reserved Namespaces Validation:**
+  - Namespaces listed as **RESERVED** in the specification **MUST NOT** be used by applications for custom data.
+  - Applications **MUST** report an error if a reserved namespace is used.
+
+- **Content Validation:**
+  - Applications **MUST** ignore any namespaces or keys within `extensions` that they do not recognize.
+  - Values within namespaces **MAY** be validated based on application-specific requirements.
+
+- **Conflict Resolution:**
+  - If a key within a namespace in `extensions` conflicts with a standard field, the standard field's value **MUST** take precedence.
+  - Applications **MUST** report an error if a conflict is detected.
+
+### Style Processing
+
+Implementations:
+
+- MAY support none, some, or all style properties
+- MUST ignore style properties they don't support
+- MUST document which style properties they support
+- SHOULD provide reasonable fallback behavior for unsupported properties
+
+When converting STJ to other formats, implementations:
+
+- SHOULD document how STJ style properties map to the target format's capabilities
+- MAY omit style properties that cannot be represented in the target format
+
+Advanced styling features (such as animations, karaoke effects, or complex positioning) SHOULD be implemented using format-specific properties within the `extensions` field under a namespace corresponding to the format.
 
 ## Representing Confidence
 
@@ -424,20 +1006,20 @@ The STJ format is designed to be a superset of common transcription and subtitle
 
 ### WebVTT
 
-- **Text Formatting**: STJ can represent formatting via `styles`.
-- **Positioning**: Supported via `styles.positioning`.
-- **Cue Settings**: Can be represented in `styles`.
+- **Text Formatting**: Basic formatting supported via core style properties
+- **Positioning**: Basic positioning supported via display properties
+- **Advanced Features**: Can be represented via properties within the `custom_webvtt` namespace in `extensions`
 
 ### TTML (Timed Text Markup Language)
 
-- **Complex Styling**: STJ can represent complex styles and formatting.
-- **Layout and Regions**: Can be mapped using `styles` and positioning options.
-- **Multiple Languages**: STJ supports per-segment language codes.
+- **Basic Styling**: Supported via core style properties
+- **Advanced Features**: Can be represented via properties within the `custom_ttml` namespace in `extensions`
+- **Multiple Languages**: Supported via segment-level language codes
 
 ### SSA/ASS
 
-- **Advanced Styling**: STJ supports advanced styling through `styles`.
-- **Karaoke Effects**: Not directly supported but can be extended via `additional_info`.
+- **Basic Styling**: Supported via core style properties
+- **Advanced Features**: Can be represented via properties within the `custom_ssa` namespace in `extensions`
 
 ## Usage in Applications
 
@@ -451,15 +1033,15 @@ The STJ format is designed to be easily parsed and utilized by a variety of appl
 
 ## Extensibility and Customization
 
-- **Additional Metadata**: Use the `additional_info` fields in both `metadata` and individual objects to include custom data without affecting compatibility.
+- **Additional Metadata**: Use the `extensions` fields in both `metadata` and individual objects to include custom data without affecting compatibility.
 - **Versioning**: Include a `version` field in `metadata` if needed for future format updates.
-- **Custom Fields**: Applications can add custom fields prefixed with `x_` to include application-specific data without affecting compatibility.
+- **Custom Fields**: Applications can add custom data within appropriately named namespaces in the `extensions` field to include application-specific data without affecting compatibility.
 
 ## Adherence to Best Practices
 
 The STJ format follows best practices for data interchange formats, drawing inspiration from established standards like:
 
-- **IETF RFC 8259**: The STJ format adheres to the JSON standard as specified in [RFC 8259](https://tools.ietf.org/html/rfc8259).
+- **IETF RFC 8259**: The STJ format adheres to the JSON standard as specified in [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259.html).
 - **ISO 639 Language Codes**: Uses standard language codes to ensure consistency.
 - **Dublin Core Metadata Initiative (DCMI)**: The metadata fields are designed to align with DCMI principles where applicable.
 - **Naming Conventions**: Field names are concise and use lowercase letters with underscores for readability.
