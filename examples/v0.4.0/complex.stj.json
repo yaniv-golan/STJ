@@ -1,0 +1,174 @@
+{
+  "metadata": {
+    "transcriber": {
+      "name": "YAWT",
+      "version": "0.4.0"
+    },
+    "created_at": "2023-10-19T15:30:00Z",
+    "source": {
+      "uri": "https://example.com/funny_conference.mp4",
+      "duration": 1800.0,
+      "languages": ["en", "es", "de"]
+    },
+    "languages": ["en", "es", "de"],
+    "confidence_threshold": 0.6,
+    "additional_info": {
+      "project": "Annual Humor Conference",
+      "client": "LaughCorp International"
+    }
+  },
+  "transcript": {
+    "speakers": [
+      {
+        "id": "Speaker1",
+        "name": "Dr. Chuckles",
+        "additional_info": {
+          "role": "Keynote Speaker"
+        }
+      },
+      {
+        "id": "Speaker2",
+        "name": "Ms. Giggles",
+        "additional_info": {
+          "role": "Panelist"
+        }
+      },
+      {
+        "id": "Speaker3",
+        "name": "Herr Lachen",
+        "additional_info": {
+          "role": "Guest Speaker"
+        }
+      }
+    ],
+    "styles": [
+      {
+        "id": "Style1",
+        "formatting": {
+          "bold": true,
+          "italic": false,
+          "underline": false,
+          "color": "#FF5733",
+          "background_color": "#000000"
+        },
+        "positioning": {
+          "align": "center",
+          "line": "auto",
+          "position": "50%",
+          "size": "100%"
+        }
+      }
+    ],
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 5.0,
+        "text": "Ladies and gentlemen, welcome to the Annual Humor Conference!",
+        "speaker_id": "Speaker1",
+        "confidence": 0.98,
+        "language": "en",
+        "style_id": "Style1",
+        "words": [
+          {
+            "start": 0.0,
+            "end": 0.5,
+            "text": "Ladies",
+            "confidence": 0.99
+          },
+          {
+            "start": 0.5,
+            "end": 0.7,
+            "text": "and",
+            "confidence": 0.98
+          },
+          {
+            "start": 0.7,
+            "end": 1.2,
+            "text": "gentlemen,",
+            "confidence": 0.97
+          },
+          {
+            "start": 1.3,
+            "end": 2.0,
+            "text": "welcome",
+            "confidence": 0.99
+          },
+          {
+            "start": 2.1,
+            "end": 2.3,
+            "text": "to",
+            "confidence": 0.98
+          },
+          {
+            "start": 2.3,
+            "end": 2.5,
+            "text": "the",
+            "confidence": 0.98
+          },
+          {
+            "start": 2.6,
+            "end": 3.5,
+            "text": "Annual",
+            "confidence": 0.97
+          },
+          {
+            "start": 3.6,
+            "end": 5.0,
+            "text": "Humor Conference!",
+            "confidence": 0.96
+          }
+        ]
+      },
+      {
+        "start": 5.1,
+        "end": 10.0,
+        "text": "Did you hear about the mathematician who's afraid of negative numbers?",
+        "speaker_id": "Speaker1",
+        "confidence": 0.96,
+        "language": "en",
+        "style_id": "Style1"
+      },
+      {
+        "start": 10.1,
+        "end": 12.0,
+        "text": "He'll stop at nothing to avoid them!",
+        "speaker_id": "Speaker1",
+        "confidence": 0.95,
+        "language": "en",
+        "style_id": "Style1"
+      },
+      {
+        "start": 12.1,
+        "end": 17.0,
+        "text": "¡Y ahora, un poco de humor en español!",
+        "speaker_id": "Speaker2",
+        "confidence": 0.94,
+        "language": "es"
+      },
+      {
+        "start": 17.1,
+        "end": 22.0,
+        "text": "¿Qué le dijo un techo a otro techo? ¡Techo de menos!",
+        "speaker_id": "Speaker2",
+        "confidence": 0.93,
+        "language": "es"
+      },
+      {
+        "start": 22.1,
+        "end": 27.0,
+        "text": "Und jetzt etwas auf Deutsch!",
+        "speaker_id": "Speaker3",
+        "confidence": 0.92,
+        "language": "de"
+      },
+      {
+        "start": 27.1,
+        "end": 32.0,
+        "text": "Warum können Seeräuber den Kreisumfang so gut berechnen? Weil sie Pi raten!",
+        "speaker_id": "Speaker3",
+        "confidence": 0.91,
+        "language": "de"
+      }
+    ]
+  }
+}

@@ -24,60 +24,11 @@ The STJ format includes detailed transcription segments with associated metadata
 
 ## Specification
 
+The STJ files must include a `version` field within the `metadata` section to indicate the specification version they comply with. This facilitates compatibility and proper validation across different implementations.
+
 ### Version History
 
-**Version 0.5 Changes**:
-
-- **Renamed** `additional_info` fields to `extensions` throughout the specification.
-  
-- **Introduced** namespaces within the `extensions` field for structured custom data.
-  
-- **Reserved** specific namespaces (`stj`, `webvtt`, `ttml`, `ssa`, `srt`, `dfxp`, `smptett`) for future official use.
-  
-- **Revised** examples and validation rules to reflect the new `extensions` structure.
-  
-- **Updated** style definitions to use namespaced `extensions` instead of `x_` prefixed properties.
-  
-- **Added** detailed **Speaker ID Requirements**:
-  - **Defined** format specifications for `speaker_id`, including allowed characters, length constraints, uniqueness, and case sensitivity.
-  - **Provided** guidelines for representing anonymous speakers consistently.
-  - **Expanded** the **"Speaker IDs"** section under **"Field Definitions and Constraints"** to include these requirements.
-  - **Updated** the **"Speakers"** subsection under **"Transcript Section"** to reference the new **"Speaker ID Requirements"**.
-  - **Updated** examples and validation rules to reflect the new speaker ID requirements.
-  
-- **Added** comprehensive character encoding requirements, including:
-  - Mandatory UTF-8 encoding with optional BOM.
-  - String content validation rules.
-  - Unicode normalization requirements.
-  - Character encoding validation requirements.
-  
-- **Changed** zero-duration segment representation from `segment_duration` in `extensions` to a boolean `is_zero_duration` field.
-  
-- **Changed** zero-duration word representation from `word_duration` in `extensions` to a boolean `is_zero_duration` field.
-  
-- **Clarified** default behavior of the `word_timing_mode` field when omitted:
-  - Treated as `"complete"` when the `words` array is present with complete coverage.
-  - Treated as `"none"` when the `words` array is absent.
-  - Invalid when the `words` array is present but incomplete (must explicitly specify `"partial"`).
-  
-- **Added** explicit validation rules for each `word_timing_mode` value.
-  
-- **Added** comprehensive time format requirements and constraints.
-  
-- **Added** specific implementation requirements for handling time values.
-  
-- **Clarified** time value precision and range requirements.
-  
-- **Consolidated** all time-related validation requirements.
-  
-- **Standardized** cross-references to the **Time Format Requirements** section throughout the document.
-
-**Version 0.4 Changes**:
-
-- **Added** `word_timing_mode` field in segments to indicate the completeness of word-level timing data.
-- **Clarified** the relationship between segment-level text and word-level details, accounting for `word_timing_mode`.
-- **Specified** validation requirements for all parts of the JSON, including segments, words, speakers, styles, and additional fields.
-- **Provided** additional examples demonstrating the use of `word_timing_mode`.
+For a detailed list of changes between versions, please see the [CHANGELOG.md](../CHANGELOG.md) file.
 
 ### Overview
 
@@ -108,6 +59,9 @@ The `"metadata"` object includes optional and required fields providing context 
   - **name** *(string, mandatory)*: Name of the transcriber application.
   - **version** *(string, mandatory)*: Version of the transcriber application.
 - **created_at** *(string, mandatory)*: ISO 8601 timestamp indicating when the transcription was created.
+- **version** *(mandatory)*: Specifies the STJ specification version the file adheres to.
+  - **Format**: Semantic versioning (e.g., `"0.5.0"`)
+  - **Pattern**: Must follow the regex pattern `^\d+\.\d+\.\d+$` to ensure semantic versioning.
 - **source** *(optional)*: Information about the source of the audio/video.
   - **uri** *(string, optional)*: The URI of the source media.
     - MUST conform to the **URI Format Requirements** specified in the **Field Definitions and Constraints** section.
@@ -141,6 +95,7 @@ The STJ format includes two `languages` fields within the `metadata` section to 
     "version": "0.4.0"
   },
   "created_at": "2023-10-20T12:00:00Z",
+  "version": "0.5.0",
   "source": {
     "uri": "https://example.com/multilingual_media.mp4",
     "duration": 3600.5,
@@ -402,6 +357,7 @@ Imagine a video where presenters speak in English and Spanish, and the transcrip
     "version": "0.4.0"
   },
   "created_at": "2023-10-20T12:00:00Z",
+  "version": "0.5.0",
   "source": {
     "uri": "https://example.com/event.mp4",
     "duration": 5400.0,
@@ -445,6 +401,7 @@ In this example:
   - `metadata.transcriber.name`
   - `metadata.transcriber.version`
   - `metadata.created_at`
+  - `metadata.version`
   - `transcript.segments` (array)
   - `transcript.segments[].start`
   - `transcript.segments[].end`
