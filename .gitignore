@@ -169,3 +169,4 @@ dist/
 .DS_Store
 .env
 .vscode/
+.vscode/launch.json

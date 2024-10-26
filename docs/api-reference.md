@@ -9,18 +9,17 @@
 **Usage**:
 
 ```bash
-python stj_validator.py <stj_file> <schema_file>
+python stj_validator.py <stj_file>
 ```
 
 **Arguments**:
 
 - `<stj_file>`: Path to the STJ file to validate.
-- `<schema_file>`: Path to the JSON schema file.
 
 **Example**:
 
 ```bash
-python stj_validator.py examples/multilingual.stj.json spec/schema/stj-schema.json
+python stj_validator.py examples/multilingual.stj.json
 ```
 
 ### `stj_to_srt.py`
@@ -180,40 +179,38 @@ node stj-to-ass.js examples/multilingual.stj.json output.ass
 
 #### `stj_validator.py`
 
-- **Function**: `validate_stj(stj_file, schema_file)`
-  - Validates the STJ file against the schema.
+- **Function**: `main()`
+  - Validates the STJ file using stjlib
 - **Dependencies**:
-  - `json`
-  - `jsonschema`
+  - `stjlib`
   - `argparse`
 
 #### `stj_to_srt.py`
 
-- **Function**: `generate_srt(stj_data, output_srt_path)`
-  - Converts STJ data to SRT format.
+- **Function**: `generate_srt(stj_file_path, output_srt_path)`
+  - Converts STJ file to SRT format
 - **Dependencies**:
-  - `json`
+  - `stjlib`
   - `srt`
   - `argparse`
   - `datetime.timedelta`
 
 #### `stj_to_vtt.py`
 
-- **Function**: `generate_vtt(stj_data, output_vtt_path)`
-  - Converts STJ data to WebVTT format.
+- **Function**: `generate_vtt(stj_file_path, output_vtt_path)`
+  - Converts STJ file to WebVTT format
 - **Dependencies**:
-  - `json`
+  - `stjlib`
   - `webvtt`
   - `argparse`
 
 #### `stj_to_ass.py`
 
-- **Function**: `generate_ass(stj_data, output_ass_path)`
-  - Converts STJ data to ASS format.
+- **Function**: `generate_ass(stj_file_path, output_ass_path)`
+  - Converts STJ file to ASS format
 - **Dependencies**:
-  - `json`
+  - `stjlib`
   - `argparse`
-  - `datetime`
 
 ---
 

@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
-import json
 import argparse
-import datetime
-
-def load_stj(stj_file_path):
-    with open(stj_file_path, 'r', encoding='utf-8') as f:
-        stj_data = json.load(f)
-    return stj_data
+from stjlib import StandardTranscriptionJSON
 
 def format_timestamp(seconds):
     hours = int(seconds // 3600)
@@ -16,17 +10,17 @@ def format_timestamp(seconds):
     secs = int(secs)
     return f"{hours:01d}:{minutes:02d}:{secs:02d}.{milliseconds:02d}"
 
-def generate_ass(stj_data, output_ass_path):
-    segments = stj_data['transcript']['segments']
-    styles = stj_data['transcript'].get('styles', [])
-    speakers = stj_data['transcript'].get('speakers', [])
+def generate_ass(stj_file_path, output_ass_path):
+    # Load and validate STJ file using stjlib
+    stj = StandardTranscriptionJSON.from_file(stj_file_path, validate=True)
+    segments = stj.transcript.segments
+    styles = stj.transcript.styles if hasattr(stj.transcript, 'styles') else []
+    speakers = stj.transcript.speakers if hasattr(stj.transcript, 'speakers') else []
 
     # Build a mapping of style IDs to style definitions
     style_map = {}
     for style in styles:
-        style_id = style['id']
-        formatting = style.get('formatting', {})
-        position = style.get('positioning', {})
+        style_id = style.id
         # Here you can map STJ styles to ASS style formats.
         # For simplicity, we'll use default styles.
         style_map[style_id] = "Default"
@@ -56,15 +50,15 @@ def generate_ass(stj_data, output_ass_path):
         f.write('Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n')
 
         for seg in segments:
-            start = format_timestamp(seg['start'])
-            end = format_timestamp(seg['end'])
-            speaker_id = seg.get('speaker_id', '')
+            start = format_timestamp(seg.start)
+            end = format_timestamp(seg.end)
+            speaker_id = seg.speaker_id if hasattr(seg, 'speaker_id') else ''
             speaker_name = ''
             if speaker_id:
-                speaker = next((s for s in speakers if s['id'] == speaker_id), {})
-                speaker_name = speaker.get('name', speaker_id)
-            text = seg['text'].replace('\n', '\\N')  # Replace newlines
-            style_id = seg.get('style_id', 'Default')
+                speaker = next((s for s in speakers if s.id == speaker_id), {})
+                speaker_name = getattr(speaker, 'name', speaker_id)
+            text = seg.text.replace('\n', '\\N')  # Replace newlines
+            style_id = seg.style_id if hasattr(seg, 'style_id') else 'Default'
             style_name = style_map.get(style_id, 'Default')
             f.write(f'Dialogue: 0,{start},{end},{style_name},{speaker_name},0000,0000,0000,,{text}\n')
 
@@ -75,9 +69,7 @@ def main():
     parser.add_argument('stj_file', help="Path to the STJ file")
     parser.add_argument('output_ass', help="Path to the output ASS file")
     args = parser.parse_args()
-
-    stj_data = load_stj(args.stj_file)
-    generate_ass(stj_data, args.output_ass)
+    generate_ass(args.stj_file, args.output_ass)
 
 if __name__ == "__main__":
     main()

@@ -45,9 +45,10 @@
 
 The `requirements.txt` file includes:
 
-- `srt>=3.5.2`
-- `webvtt-py>=0.4.6`
-- `jsonschema>=3.2.0`
+- `stjlib>=0.3.0` - STJ file handling and validation
+- `srt>=3.5.2` - SRT subtitle format support
+- `webvtt-py>=0.4.6` - WebVTT subtitle format support
+- `pytest>=7.0.0` - Testing framework
 
 ## JavaScript Tools
 

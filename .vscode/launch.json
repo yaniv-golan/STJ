@@ -33,6 +33,16 @@
                 "PYTHONPATH": "${workspaceFolder}/tools/python"
             },
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run STJ Validator",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tools/python/stj_validator.py",
+            "args": [
+                "${workspaceFolder}/examples/latest/simple.stj.json"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }
