@@ -1,13 +1,13 @@
 # Standard Transcription JSON (STJ) Format
 
-**Version**: 0.4
-**Date**: 2024-10-22
+**Version**: 0.5
+**Date**: 2024-10-26
 
 ## Introduction
 
 The **Standard Transcription JSON (STJ)** format is a proposed standard for representing transcribed audio and video data in a structured, machine-readable JSON format. It aims to provide a comprehensive and flexible framework that is a superset of existing transcription and subtitle formats.
 
-[Read the full specification](./spec/stj-specification.md)
+[Read the full specification](./spec/latest/stj-specification.md)
 
 ## Repository Structure
 
@@ -107,6 +107,7 @@ Contributions are welcome! Please read our [Contribution Guidelines](./CONTRIBUT
 ## Projects using STJ
 
 - [YAWT](https://github.com/yaniv-golan/YAWT)
+- [STJLib](https://github.com/yaniv-golan/stjlib)
 
 ## License
 
