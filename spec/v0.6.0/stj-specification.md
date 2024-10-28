@@ -9,9 +9,9 @@ The **Standard Transcription JSON (STJ)** format is a proposed standard for repr
 
 The STJ format includes detailed transcription segments with associated metadata such as speaker information, timestamps, confidence scores, language codes, and styling options. It also allows for optional metadata about the transcription process, source input, and the transcriber application.
 
-**File Extension**: `.stj.json`  
-**MIME Type**: `application/vnd.stj+json`
-**Character Encoding**: UTF-8
+## Version History
+
+For a detailed list of changes between versions, please see the [CHANGELOG.md](../CHANGELOG.md) file.
 
 ## Objectives
 
@@ -24,25 +24,32 @@ The STJ format includes detailed transcription segments with associated metadata
 
 ## Specification
 
+- **File Extensions**:
+  - Primary (Recommended): `.stjson`
+  - Alternative: `.stj`
+  - Alternative: `.stj.json` (systems supporting double extensions)
+- **MIME Type**: `application/vnd.stj+json`
+- **Character Encoding**: UTF-8
+
 The STJ files must include a `version` field within the `metadata` section to indicate the specification version they comply with. This facilitates compatibility and proper validation across different implementations.
 
-### Version History
+### Root Structure
 
-For a detailed list of changes between versions, please see the [CHANGELOG.md](../CHANGELOG.md) file.
-
-### Overview
-
-The STJ file is a JSON object containing two main sections:
-
-- `"metadata"`: Contains information about the transcription process, source input, and other relevant details.
-- `"transcript"`: Contains the actual transcription data, including speaker information, segments, and optional styling.
+The STJ file MUST contain a single JSON object with the root property name `"stj"`. This root object contains exactly two mandatory sections:
 
 ```json
 {
-  "metadata": { ... },
-  "transcript": { ... }
+  "stj": {
+    "metadata": { ... },
+    "transcript": { ... }
+  }
 }
 ```
+
+No additional properties are allowed at the root level. The order of properties in the root object is significant.
+
+- `"metadata"`: Contains information about the transcription process, source input, and other relevant details.
+- `"transcript"`: Contains the actual transcription data, including speaker information, segments, and optional styling.
 
 ### Mandatory vs. Optional Fields
 
@@ -60,7 +67,7 @@ The `"metadata"` object includes optional and required fields providing context 
   - **version** *(string, mandatory)*: Version of the transcriber application.
 - **created_at** *(string, mandatory)*: ISO 8601 timestamp indicating when the transcription was created.
 - **version** *(mandatory)*: Specifies the STJ specification version the file adheres to.
-  - **Format**: Semantic versioning (e.g., `"0.5.0"`)
+  - **Format**: Semantic versioning (e.g., `"0.6.0"`)
   - **Pattern**: Must follow the regex pattern `^\d+\.\d+\.\d+$` to ensure semantic versioning.
 - **source** *(optional)*: Information about the source of the audio/video.
   - **uri** *(string, optional)*: The URI of the source media.
@@ -803,6 +810,54 @@ The `extensions` field allows for the inclusion of custom, application-specific 
   ```
 
 **Note:** Standard fields defined in the STJ specification **MUST NOT** be duplicated within any namespace in `extensions`. For example, including a key `"start"` within a namespace is prohibited if it conflicts with the mandatory `"start"` field of the segment.
+
+## Field Definitions and Constraints
+
+### Structural Requirements
+
+#### Empty Value Constraints
+
+- **Null Values**:
+  - Null values are not allowed for any field
+  - Optional fields MUST be omitted entirely rather than set to null
+  
+- **Empty Arrays**:
+  - Empty arrays are not allowed for mandatory arrays (e.g., `segments`)
+  - Optional arrays (e.g., `speakers`, `styles`, `words`) MUST be omitted entirely rather than included as empty arrays
+  - The `languages` array, if present, MUST contain at least one entry
+
+- **Empty Objects**:
+  - Empty objects are not allowed for any required object fields
+  - Optional object fields MUST be omitted entirely rather than included as empty objects
+  - The `extensions` object, if present, MUST contain at least one namespace
+
+- **Empty Strings**:
+  - Empty strings are not allowed for any field except where explicitly permitted
+  - Optional string fields MUST be omitted entirely rather than included as empty strings
+
+#### Array Ordering Requirements
+
+- **Ordered Arrays**:
+  - The `segments` array MUST maintain temporal order
+  - The `words` array within segments MUST maintain temporal order
+  
+- **Unordered Arrays**:
+  - The `speakers` array order is not significant
+  - The `styles` array order is not significant
+
+#### String Content Requirements
+
+- Leading and trailing whitespace in string values MUST be preserved
+- String values MAY contain multiple consecutive whitespace characters
+- Line breaks in string values MUST be preserved
+
+#### Number Format Requirements
+
+- All numeric values MUST use JSON number format
+- Scientific notation is not allowed
+- Leading zeros are not allowed except for decimal values less than 1
+- The negative zero value (-0) is not allowed
+- The values `Infinity`, `-Infinity`, and `NaN` are not allowed
 
 ## Implementation Requirements
 
