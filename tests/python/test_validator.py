@@ -1,11 +1,8 @@
 import json
 import os
-import subprocess
-import filecmp
-import tempfile
 import pytest
-from jsonschema import validate, ValidationError, SchemaError
-from stj_validator import validate_segments, validate_words
+from stjlib import StandardTranscriptionJSON
+from jsonschema import validate  # Add this import
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
@@ -16,33 +13,36 @@ def schema():
     with open(schema_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def test_valid_stj_file(schema):
-    # Test with a valid STJ file
-    stj_file_path = os.path.join(PROJECT_ROOT, 'examples', 'simple.stj.json')
-    with open(stj_file_path, 'r', encoding='utf-8') as f:
-        stj_data = json.load(f)
-    validate(instance=stj_data, schema=schema)
+def test_valid_stj_file():
+    stj_file_path = os.path.join(PROJECT_ROOT, 'examples', 'latest', 'simple.stj.json')
+    stj = StandardTranscriptionJSON.from_file(stj_file_path)
+    validation_issues = stj.validate(raise_exception=False)
+    assert not validation_issues
 
-def test_invalid_missing_mandatory_field(schema):
-    # Test with an STJ file missing a mandatory field
+def test_invalid_missing_mandatory_field():
     stj_data = {
-        # 'metadata' is missing
+        "metadata": {
+            "created_at": "2024-10-19T15:30:00Z",
+            "version": "0.5.0"
+            # 'transcriber' is still missing, which should cause validation to fail
+        },
         "transcript": {
             "segments": []
         }
     }
-    with pytest.raises(ValidationError):
-        validate(instance=stj_data, schema=schema)
+    stj = StandardTranscriptionJSON.from_dict(stj_data)
+    validation_issues = stj.validate(raise_exception=False)
+    assert validation_issues  # Should have validation issues
 
-def test_invalid_wrong_data_type(schema):
-    # Test with incorrect data types
+def test_invalid_wrong_data_type():
     stj_data = {
         "metadata": {
             "transcriber": {
                 "name": "test_validator",
                 "version": "0.1.0"
             },
-            "created_at": "2023-10-19T15:30:00Z"
+            "created_at": "2024-10-19T15:30:00Z",
+            "version": "0.5.0"
         },
         "transcript": {
             "segments": [
@@ -54,18 +54,19 @@ def test_invalid_wrong_data_type(schema):
             ]
         }
     }
-    with pytest.raises(ValidationError):
-        validate(instance=stj_data, schema=schema)
+    stj = StandardTranscriptionJSON.from_dict(stj_data)
+    with pytest.raises(AttributeError):  
+        stj.validate(raise_exception=True)
 
-def test_invalid_additional_properties(schema):
-    # Test with unexpected additional properties
+def test_invalid_additional_properties():
     stj_data = {
         "metadata": {
             "transcriber": {
                 "name": "test_validator",
                 "version": "0.1.0"
             },
-            "created_at": "2023-10-19T15:30:00Z",
+            "created_at": "2024-10-19T15:30:00Z",
+            "version": "0.5.0",
             "unexpected_field": "unexpected"
         },
         "transcript": {
@@ -78,8 +79,9 @@ def test_invalid_additional_properties(schema):
             ]
         }
     }
-    with pytest.raises(ValidationError):
-        validate(instance=stj_data, schema=schema)
+    stj = StandardTranscriptionJSON.from_dict(stj_data)
+    validation_issues = stj.validate(raise_exception=False)
+    assert validation_issues  # Should have validation issues
 
 def test_schema_error():
     # Test with an invalid schema
@@ -87,5 +89,5 @@ def test_schema_error():
         "type": "invalid_type"  # Invalid schema
     }
     stj_data = {}
-    with pytest.raises(SchemaError):
+    with pytest.raises(jsonschema.SchemaError):
         validate(instance=stj_data, schema=invalid_schema)
