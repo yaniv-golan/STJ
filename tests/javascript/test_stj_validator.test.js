@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const path = require('path');
 
 const validator = path.join(__dirname, '..', '..', 'tools', 'javascript', 'stj-validator.js');
-const schemaFile = path.join(__dirname, '..', '..', 'spec', 'latest', 'stj-schema.json');
+const schemaFile = path.join(__dirname, '..', '..', 'spec', 'schema', 'latest', 'stj-schema.json');
 
 // Helper function to run validator and check for expected error
 function runValidatorTest(stjFileName, expectedErrorMessage, done) {
