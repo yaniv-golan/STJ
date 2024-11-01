@@ -27,8 +27,8 @@ jobs:
         pip install -r requirements.txt
     - name: Run Python tests
       run: |
-        cd tests/python/
-        pytest
+        # Run from project root but specify test directory
+        pytest tests/python/
 
   test-javascript:
     runs-on: ubuntu-latest
