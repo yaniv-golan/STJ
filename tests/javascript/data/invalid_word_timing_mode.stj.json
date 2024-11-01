@@ -1,4 +1,6 @@
 {
+  "stj": {
+    "version": "0.6.0",
     "metadata": {
       "transcriber": {
         "name": "TestTranscriber",
@@ -19,10 +21,9 @@
               "end": 1.0,
               "text": "Hello"
             }
-            // Missing "world" in the words array
           ]
         }
       ]
     }
   }
-  
+}

@@ -1,4 +1,6 @@
 {
+  "stj": {
+    "version": "0.6.0",
     "metadata": {
       "transcriber": {
         "name": "TestTranscriber",
@@ -18,9 +20,9 @@
           "start": 0.0,
           "end": 3.0,
           "text": "Hello, this is a test.",
-          "speaker_id": "Speaker2"  // Invalid speaker_id
+          "speaker_id": "Speaker2"
         }
       ]
     }
   }
-  
+}

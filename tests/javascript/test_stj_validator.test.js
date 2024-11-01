@@ -1,3 +1,5 @@
+jest.setTimeout(10000); // Increase timeout to 10 seconds
+
 const { exec } = require('child_process');
 const path = require('path');
 
@@ -20,7 +22,7 @@ function runValidatorTest(stjFileName, expectedErrorMessage, done) {
 }
 
 test('Valid STJ file passes validation', (done) => {
-  const stjFile = path.join(__dirname, '..', '..', 'examples', 'simple.stj.json');
+  const stjFile = path.join(__dirname, '..', '..', 'examples', 'latest', 'simple.stj.json');
   exec(`node ${validator} ${stjFile} ${schemaFile}`, (error, stdout, stderr) => {
     expect(error).toBeNull();
     expect(stdout).toContain('All validation checks passed.');

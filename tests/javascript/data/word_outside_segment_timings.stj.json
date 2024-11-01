@@ -1,4 +1,6 @@
 {
+  "stj": {
+    "version": "0.6.0",
     "metadata": {
       "transcriber": {
         "name": "TestTranscriber",
@@ -14,13 +16,13 @@
           "text": "Timing mismatch",
           "words": [
             {
-              "start": -1.0,  // Before segment start
+              "start": -1.0,
               "end": 1.0,
               "text": "Timing"
             },
             {
               "start": 1.0,
-              "end": 4.0,  // After segment end
+              "end": 4.0,
               "text": "mismatch"
             }
           ]
@@ -28,4 +30,4 @@
       ]
     }
   }
-  
+}

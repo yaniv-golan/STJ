@@ -1,4 +1,6 @@
 {
+  "stj": {
+    "version": "0.6.0",
     "metadata": {
       "transcriber": {
         "name": "TestTranscriber",
@@ -12,7 +14,7 @@
           "start": 0.0,
           "end": 5.0,
           "text": "Confidence test",
-          "confidence": 1.2,  // Invalid confidence score
+          "confidence": 1.2,
           "words": [
             {
               "start": 0.0,
@@ -31,4 +33,4 @@
       ]
     }
   }
-  
+}
