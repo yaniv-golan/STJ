@@ -1,7 +1,7 @@
 # Standard Transcription JSON (STJ) Format
 
-**Version**: 0.5
-**Date**: 2024-10-26
+**Version**: 0.6
+**Date**: 2024-10-27
 
 ## Introduction
 
@@ -86,13 +86,19 @@ pytest
 To run the JavaScript tests:
 
 ```bash
+# Navigate to the JavaScript tools directory
 cd tools/javascript/
+
+# Install dependencies (if not already installed)
+npm install
+
+# Run tests
 npm test
 ```
 
 ### Continuous Integration
 
-The repository uses GitHub Actions for continuous integration. Tests are automatically run on every push and pull request.
+The repository uses GitHub Actions for continuous integration. Tests are automatically run on every push and pull request. The CI pipeline runs both Python and JavaScript tests in parallel.
 
 ## Contributing
 
