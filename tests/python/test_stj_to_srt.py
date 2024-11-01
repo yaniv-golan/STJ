@@ -4,6 +4,7 @@ import filecmp
 import tempfile
 import pytest
 import stjlib
+import json
 
 @pytest.fixture
 def base_dir():
@@ -14,29 +15,51 @@ def test_stj_to_srt_conversion(base_dir):
     # Add version check
     print(f"Using stjlib version: {stjlib.__version__}")
     
-    # Update path to include 'latest' directory
+    # Create a temporary STJ file with correct structure
+    stj_data = {
+        "stj": {
+            "version": "0.6.0",
+            "metadata": {
+                "created_at": "2023-10-19T15:30:00Z",
+                "transcriber": {
+                    "name": "YAWT",
+                    "version": "0.4.0"
+                },
+            },
+            "transcript": {
+                "segments": [
+                    {
+                        "start": 0.0,
+                        "end": 5.0,
+                        "text": "Hello, world!"
+                    }
+                ]
+            }
+        }
+    }
+    
     stj_tool = os.path.join(base_dir, 'tools', 'python', 'stj_to_srt.py')
-    stj_input = os.path.join(base_dir, 'examples', 'latest', 'simple.stj.json')  # Updated path
     expected_srt = os.path.join(base_dir, 'tests', 'expected_outputs', 'expected_simple.srt')
 
-    # Add these checks
-    assert os.path.exists(stj_tool), f"STJ tool not found at: {stj_tool}"
-    assert os.path.exists(stj_input), f"Input file not found at: {stj_input}"
-    
     with tempfile.TemporaryDirectory() as temp_dir:
+        # Create temporary input file
+        input_stj = os.path.join(temp_dir, 'input.stj.json')
+        with open(input_stj, 'w', encoding='utf-8') as f:
+            json.dump(stj_data, f, indent=2)
+            
         output_srt = os.path.join(temp_dir, 'output_test.srt')
         
-        # Add debug output
-        print(f"Running conversion with:")
-        print(f"Tool: {stj_tool}")
-        print(f"Input: {stj_input}")
-        print(f"Output: {output_srt}")
-        
         # Run the conversion
-        subprocess.run(['python', stj_tool, stj_input, output_srt], check=True)
+        subprocess.run(['python', stj_tool, input_stj, output_srt], check=True)
 
-        # Compare output with expected SRT file
-        assert filecmp.cmp(output_srt, expected_srt), "SRT files do not match."
+        # Read and normalize both files for comparison
+        with open(output_srt, 'r', encoding='utf-8') as f:
+            actual_content = f.read().strip()
+        with open(expected_srt, 'r', encoding='utf-8') as f:
+            expected_content = f.read().strip()
+
+        # Compare normalized content
+        assert actual_content == expected_content, "SRT files do not match."
 
 if __name__ == '__main__':
     pytest.main()

@@ -1,49 +1,75 @@
 {
-  "metadata": {
-    "transcriber": {
-      "name": "YAWT",
-      "version": "0.4.0"
-    },
-    "created_at": "2023-10-20T12:00:00Z",
-    "source": {
-      "uri": "https://example.com/conference.mp4",
-      "duration": 3600.0,
-      "languages": ["en", "es", "de"]  // Source languages: English, Spanish, German
-    },
-    "languages": ["fr", "it"],          // Transcription languages: French, Italian
-    "additional_info": {
-      "event": "International Multilingual Conference"
-    }
-  },
-  "transcript": {
-    "speakers": [
-      { "id": "Speaker1", "name": "Dr. Smith", "additional_info": { "role": "Keynote Speaker" } },
-      { "id": "Speaker2", "name": "Señora García", "additional_info": { "role": "Panelist" } },
-      { "id": "Speaker3", "name": "Herr Müller", "additional_info": { "role": "Guest Speaker" } }
-    ],
-    "segments": [
-      {
-        "start": 0.0,
-        "end": 5.0,
-        "text": "Bonjour à tous.",
-        "speaker_id": "Speaker1",
-        "language": "fr"
+  "stj": {
+    "metadata": {
+      "transcriber": {
+        "name": "YAWT",
+        "version": "0.4.0"
       },
-      {
-        "start": 5.1,
-        "end": 10.0,
-        "text": "Benvenuti a tutti.",
-        "speaker_id": "Speaker2",
-        "language": "it"
+      "created_at": "2023-10-20T12:00:00Z",
+      "source": {
+        "uri": "https://example.com/conference.mp4",
+        "duration": 3600.0,
+        "languages": [
+          "en",
+          "es",
+          "de"
+        ] // Source languages: English, Spanish, German
       },
-      {
-        "start": 10.1,
-        "end": 15.0,
-        "text": "Merci d'être venus.",
-        "speaker_id": "Speaker3",
-        "language": "fr"
+      "languages": [
+        "fr",
+        "it"
+      ], // Transcription languages: French, Italian
+      "additional_info": {
+        "event": "International Multilingual Conference"
       }
-      // Additional segments...
-    ]
+    },
+    "transcript": {
+      "speakers": [
+        {
+          "id": "Speaker1",
+          "name": "Dr. Smith",
+          "additional_info": {
+            "role": "Keynote Speaker"
+          }
+        },
+        {
+          "id": "Speaker2",
+          "name": "Señora García",
+          "additional_info": {
+            "role": "Panelist"
+          }
+        },
+        {
+          "id": "Speaker3",
+          "name": "Herr Müller",
+          "additional_info": {
+            "role": "Guest Speaker"
+          }
+        }
+      ],
+      "segments": [
+        {
+          "start": 0.0,
+          "end": 5.0,
+          "text": "Bonjour à tous.",
+          "speaker_id": "Speaker1",
+          "language": "fr"
+        },
+        {
+          "start": 5.1,
+          "end": 10.0,
+          "text": "Benvenuti a tutti.",
+          "speaker_id": "Speaker2",
+          "language": "it"
+        },
+        {
+          "start": 10.1,
+          "end": 15.0,
+          "text": "Merci d'être venus.",
+          "speaker_id": "Speaker3",
+          "language": "fr"
+        }
+        // Additional segments...
+      ]
+    }
   }
-}

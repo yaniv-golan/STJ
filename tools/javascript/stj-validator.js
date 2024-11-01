@@ -111,88 +111,139 @@ function validateSpeakersAndStyles(data) {
 function validateSegments(data) {
   const segments = data.transcript.segments;
   let previousEnd = -1;
+  let hasTimingInfo = false;
 
-  segments.forEach(segment => {
-    const { start, end, text, words, word_timing_mode } = segment;
+  segments.forEach((segment, index) => {
+    const { start, end, text, words, word_timing_mode, is_zero_duration } = segment;
 
-    // Check start and end times
-    if (start > end) {
-      throw new Error(`Segment start time ${start} is greater than end time ${end}`);
+    // Check if any segment has timing info
+    if (start !== undefined || end !== undefined) {
+      hasTimingInfo = true;
     }
 
-    // Check for overlapping segments
-    if (start < previousEnd) {
-      throw new Error(`Segments overlap or are out of order at time ${start}`);
-    }
-
-    // Check for zero-duration segments
-    if (start === end) {
-      const segmentDuration = segment.additional_info?.segment_duration;
-      if (segmentDuration !== 'zero') {
-        throw new Error(`Zero-duration segment at ${start} without 'segment_duration' set to 'zero'`);
+    // If timing info exists, validate both start and end are present
+    if (hasTimingInfo) {
+      if (start === undefined || end === undefined) {
+        throw new Error(`Segment ${index}: both start and end times must be present if either is provided`);
       }
+
+      // Validate time values
+      validateTimeValue(start, `segment ${index} start time`);
+      validateTimeValue(end, `segment ${index} end time`);
+
+      // Check basic timing constraints
+      if (start > end) {
+        throw new Error(`Segment start time ${start} is greater than end time ${end} in segment ${index}`);
+      }
+
+      if (start < previousEnd) {
+        throw new Error(`Segments overlap or are out of order at time ${start} in segment ${index}`);
+      }
+
+      // Validate zero-duration segments
+      validateZeroDuration(start, end, is_zero_duration, `segment ${index}`);
+
+      // Zero-duration segments must not have words or word_timing_mode
+      if (is_zero_duration) {
+        if (words || word_timing_mode) {
+          throw new Error(`Zero-duration segment at ${start} must not have words or word_timing_mode`);
+        }
+      }
+
+      previousEnd = end;
     }
 
-    // Validate words within the segment
-    validateWords(segment);
+    // Validate words if present
+    if (words) {
+      validateWords(segment, index);
+    }
 
     // Validate confidence scores
-    const confidence = segment.confidence;
-    if (confidence !== undefined && (confidence < 0.0 || confidence > 1.0)) {
-      throw new Error(`Segment confidence ${confidence} out of range [0.0, 1.0] in segment starting at ${start}`);
+    if (segment.confidence !== undefined && segment.confidence !== null) {
+      if (typeof segment.confidence !== 'number' ||
+        segment.confidence < 0.0 ||
+        segment.confidence > 1.0) {
+        throw new Error(`Segment confidence ${segment.confidence} out of range [0.0, 1.0] in segment ${index}`);
+      }
     }
-
-    previousEnd = end;
   });
+
+  // If any segment has timing info, all segments must have it
+  if (hasTimingInfo) {
+    segments.forEach((segment, index) => {
+      if (segment.start === undefined || segment.end === undefined) {
+        throw new Error(`Segment ${index} missing timing information when other segments have it`);
+      }
+    });
+  }
 }
 
-function validateWords(segment) {
+function validateWords(segment, segmentIndex) {
   const words = segment.words || [];
   const wordTimingMode = segment.word_timing_mode || (words.length ? 'complete' : 'none');
   const { start: segmentStart, end: segmentEnd } = segment;
 
+  // Validate word_timing_mode
   if (!['complete', 'partial', 'none'].includes(wordTimingMode)) {
-    throw new Error(`Invalid 'word_timing_mode' in segment starting at ${segmentStart}`);
+    throw new Error(`Invalid 'word_timing_mode' in segment ${segmentIndex}`);
   }
 
-  if (wordTimingMode !== 'none' && words.length === 0) {
-    throw new Error(`'word_timing_mode' is '${wordTimingMode}' but no words are provided in segment starting at ${segmentStart}`);
+  // Handle different word timing modes
+  if (wordTimingMode === 'none') {
+    if (words.length > 0) {
+      throw new Error(`'word_timing_mode' is 'none' but words are provided in segment ${segmentIndex}`);
+    }
+    return;
+  }
+
+  // Validate words presence for non-'none' modes
+  if (words.length === 0) {
+    if (wordTimingMode === 'partial') {
+      throw new Error(`'word_timing_mode' is 'partial' but no words are provided in segment ${segmentIndex}`);
+    }
   }
 
   let previousWordEnd = segmentStart;
   let concatenatedWords = '';
 
-  words.forEach(word => {
-    const { start: wordStart, end: wordEnd, text: wordText } = word;
+  words.forEach((word, wordIndex) => {
+    const { start: wordStart, end: wordEnd, text: wordText, is_zero_duration } = word;
+
+    // Validate required fields
+    if (!wordText) {
+      throw new Error(`Missing word text in segment ${segmentIndex}, word ${wordIndex}`);
+    }
+
+    // Validate time values
+    validateTimeValue(wordStart, `segment ${segmentIndex}, word ${wordIndex} start time`);
+    validateTimeValue(wordEnd, `segment ${segmentIndex}, word ${wordIndex} end time`);
 
     // Check word timings
     if (wordStart > wordEnd) {
-      throw new Error(`Word start time ${wordStart} is greater than end time ${wordEnd} in segment starting at ${segmentStart}`);
+      throw new Error(`Word start time ${wordStart} is greater than end time ${wordEnd} in segment ${segmentIndex}, word ${wordIndex}`);
     }
 
     if (wordStart < segmentStart || wordEnd > segmentEnd) {
-      throw new Error(`Word timings are outside segment timings in segment starting at ${segmentStart}`);
+      throw new Error(`Word timings are outside segment timings in segment ${segmentIndex}, word ${wordIndex}`);
     }
 
     if (wordStart < previousWordEnd) {
-      throw new Error(`Words overlap or are out of order in segment starting at ${segmentStart}`);
+      throw new Error(`Words overlap or are out of order in segment ${segmentIndex}, word ${wordIndex}`);
     }
 
-    // Check for zero-duration words
-    if (wordStart === wordEnd) {
-      const wordDuration = word.additional_info?.word_duration;
-      if (wordDuration !== 'zero') {
-        throw new Error(`Zero-duration word at ${wordStart} without 'word_duration' set to 'zero'`);
-      }
-    }
+    // Validate zero-duration words
+    validateZeroDuration(wordStart, wordEnd, is_zero_duration, `word in segment ${segmentIndex}, word ${wordIndex}`);
 
     previousWordEnd = wordEnd;
     concatenatedWords += wordText + ' ';
 
     // Validate word confidence
-    const wordConfidence = word.confidence;
-    if (wordConfidence !== undefined && (wordConfidence < 0.0 || wordConfidence > 1.0)) {
-      throw new Error(`Word confidence ${wordConfidence} out of range [0.0, 1.0] in segment starting at ${segmentStart}`);
+    if (word.confidence !== undefined && word.confidence !== null) {
+      if (typeof word.confidence !== 'number' ||
+        word.confidence < 0.0 ||
+        word.confidence > 1.0) {
+        throw new Error(`Word confidence ${word.confidence} out of range [0.0, 1.0] in segment ${segmentIndex}, word ${wordIndex}`);
+      }
     }
   });
 
@@ -200,10 +251,51 @@ function validateWords(segment) {
   if (wordTimingMode === 'complete') {
     const segmentText = segment.text;
     const normalizedSegmentText = segmentText.replace(/\s+/g, '');
-    const normalizedWordsText = concatenatedWords.replace(/\s+/g, '');
+    const normalizedWordsText = concatenatedWords.trim().replace(/\s+/g, '');
 
     if (normalizedWordsText !== normalizedSegmentText) {
-      throw new Error(`Concatenated words do not match segment text in segment starting at ${segmentStart}`);
+      throw new Error(`Concatenated words do not match segment text in segment ${segmentIndex}`);
+    }
+  }
+}
+
+// Add these utility functions at the top level
+function validateTimeValue(time, context) {
+  // Check basic type and format
+  if (typeof time !== 'number') {
+    throw new Error(`Invalid time value in ${context}: must be a number`);
+  }
+
+  // Check range and format requirements
+  if (time < 0) {
+    throw new Error(`Invalid time value in ${context}: negative values not allowed`);
+  }
+
+  if (time > 999999.999) {
+    throw new Error(`Invalid time value in ${context}: exceeds maximum allowed value`);
+  }
+
+  // Convert to string and check format
+  const timeStr = time.toString();
+  if (timeStr.includes('e') || timeStr.includes('E')) {
+    throw new Error(`Invalid time value in ${context}: scientific notation not allowed`);
+  }
+
+  // Check decimal places
+  const parts = timeStr.split('.');
+  if (parts[1] && parts[1].length > 3) {
+    throw new Error(`Invalid time value in ${context}: maximum 3 decimal places allowed`);
+  }
+}
+
+function validateZeroDuration(start, end, isZeroDuration, context) {
+  if (start === end) {
+    if (!isZeroDuration) {
+      throw new Error(`Zero-duration ${context} must have 'is_zero_duration' set to true`);
+    }
+  } else {
+    if (isZeroDuration) {
+      throw new Error(`Non-zero-duration ${context} must not have 'is_zero_duration' field`);
     }
   }
 }

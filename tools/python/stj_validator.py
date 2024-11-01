@@ -10,10 +10,8 @@ def main():
     args = parser.parse_args()
 
     try:
-        # Load STJ file without validation first
+        # Load and validate STJ file using stjlib
         stj = StandardTranscriptionJSON.from_file(args.stj_file, validate=False)
-        
-        # Run validation and get list of issues, without raising exceptions
         validation_issues = stj.validate(raise_exception=False)
         
         if not validation_issues:
