@@ -72,6 +72,7 @@ function validateStjData(data) {
   validateLanguageCodes(data);
   validateSegments(data);
   validateSpeakersAndStyles(data);
+  validateWordTimings(data.transcript);
 }
 
 function validateLanguageCodes(data) {
@@ -255,6 +256,23 @@ function validateWords(segment, segmentIndex) {
 
     if (normalizedWordsText !== normalizedSegmentText) {
       throw new Error(`Concatenated words do not match segment text in segment ${segmentIndex}`);
+    }
+  }
+}
+
+function validateWordTimings(transcript) {
+  const segments = transcript.segments || [];
+
+  for (const segment of segments) {
+    const words = segment.words || [];
+
+    for (const word of words) {
+      // Check for zero duration words
+      if (word.start === word.end) {
+        throw new Error(`Word "${word.text}" has zero duration (start: ${word.start}, end: ${word.end})`);
+      }
+
+      // ... other word timing validations ...
     }
   }
 }

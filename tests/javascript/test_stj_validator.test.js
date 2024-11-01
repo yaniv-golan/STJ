@@ -51,11 +51,12 @@ test('Invalid STJ file with invalid word_timing_mode fails validation', (done) =
 });
 
 test('Invalid STJ file with zero-duration word without flag fails validation', (done) => {
-  runValidatorTest(
-    'zero_duration_word_without_flag.stj.json',
-    "Zero-duration word at 1 without 'word_duration' set to 'zero'",
-    done
-  );
+  const stjFile = path.join(__dirname, 'data', 'zero_duration_word_without_flag.stj.json');
+  exec(`node ${validator} ${stjFile} ${schemaFile}`, (error, stdout, stderr) => {
+    expect(error).not.toBeNull();
+    expect(stderr).toContain('Word "Zero" has zero duration (start: 1, end: 1)');
+    done();
+  });
 });
 
 test('Invalid STJ file with invalid confidence scores fails validation', (done) => {
