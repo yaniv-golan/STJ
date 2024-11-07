@@ -1,5 +1,9 @@
 # API Reference
 
+## Python implementation
+
+You can find a full featured reference implementation with validation support in Python at the [STJLib repo](https://github.com/yaniv-golan/stjlib).
+
 ## Tools
 
 ### `stj_validator.py`
