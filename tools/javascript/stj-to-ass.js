@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const process = require('process');
-const path = require('path');
+const { getTranscript } = require('./utils/stj-utils');
 
 function loadSTJ(stjFilePath) {
   const data = fs.readFileSync(stjFilePath, 'utf8');
@@ -19,9 +19,13 @@ function formatTimestamp(seconds) {
 }
 
 function generateASS(stjData, outputAssPath) {
-  const segments = stjData['transcript']['segments'];
-  const styles = stjData['transcript']['styles'] || [];
-  const speakers = stjData['transcript']['speakers'] || [];
+  const transcript = getTranscript(stjData);
+  const segments = transcript.segments || [];
+  if (!Array.isArray(segments) || segments.length === 0) {
+    throw new Error('Invalid STJ file: transcript must include segments');
+  }
+  const styles = transcript.styles || [];
+  const speakers = transcript.speakers || [];
 
   // Build a mapping of style IDs to style definitions
   const styleMap = {};

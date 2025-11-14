@@ -1,6 +1,6 @@
 {
   "name": "stj-tools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "JavaScript tools for working with STJ files",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,6 @@
   "dependencies": {
     "ajv": "^8.6.2",
     "ajv-formats": "^3.0.1",
-    "iso-639-1": "^1.0.0",
     "json5": "^2.2.3",
     "moment": "^2.29.1",
     "node-webvtt": "^1.1.0",

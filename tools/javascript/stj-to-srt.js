@@ -4,6 +4,7 @@ const fs = require('fs');
 const srtParser = require('srt-parser-2');
 const moment = require('moment');
 const process = require('process');
+const { getTranscript } = require('./utils/stj-utils');
 
 function loadSTJ(stjFilePath) {
   const data = fs.readFileSync(stjFilePath, 'utf8');
@@ -16,7 +17,11 @@ function formatTimestamp(seconds) {
 }
 
 function generateSRT(stjData, outputSrtPath) {
-  const segments = stjData['transcript']['segments'];
+  const transcript = getTranscript(stjData);
+  const segments = transcript.segments || [];
+  if (!Array.isArray(segments) || segments.length === 0) {
+    throw new Error('Invalid STJ file: transcript must include segments');
+  }
   const subtitles = [];
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i];

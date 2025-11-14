@@ -5,7 +5,25 @@ const addFormats = require('ajv-formats');
 const fs = require('fs');
 const JSON5 = require('json5');
 const path = require('path');
-const iso639 = require('iso-639-1');
+const languageData = require('./data/language-codes.json');
+const { getStjRoot } = require('./utils/stj-utils');
+
+const ISO6393_TO_1 = {};
+Object.entries(languageData.iso6393To1 || {}).forEach(([key, value]) => {
+  if (key) {
+    ISO6393_TO_1[key.toLowerCase()] = value;
+  }
+});
+
+const ISO6391_CODES = new Set(
+  (languageData.iso6391Codes || []).map(code => code.toLowerCase()).filter(Boolean)
+);
+const ISO6393_CODES = new Set(
+  (languageData.iso6393Codes || []).map(code => code.toLowerCase()).filter(Boolean)
+);
+const ISO6393_WITHOUT_ISO6391 = new Set(
+  [...ISO6393_CODES].filter(code => !ISO6393_TO_1[code])
+);
 
 // Validation Functions
 function validateTimeValue(time, context) {
@@ -40,28 +58,48 @@ function validateZeroDuration(start, end, isZeroDuration, context) {
   }
 }
 
-function validateLanguageCodes(data) {
-  const metadata = data.stj.metadata || {};
-  const sourceLanguages = metadata.source?.languages || [];
-  const transcriptionLanguages = metadata.languages || [];
-  const segmentLanguages = data.stj.transcript.segments.map(seg => seg.language).filter(Boolean);
-
-  const allLanguages = [...sourceLanguages, ...transcriptionLanguages, ...segmentLanguages];
-
-  allLanguages.forEach(code => {
-    if (!iso639.validate(code)) {
-      throw new Error(`Invalid language code: ${code}`);
-    }
-  });
+function assertValidLanguageCode(code) {
+  if (!code || typeof code !== 'string') {
+    throw new Error(`Invalid language code: ${code}`);
+  }
+  const normalized = code.toLowerCase();
+  if (ISO6391_CODES.has(normalized)) {
+    return;
+  }
+  if (ISO6393_WITHOUT_ISO6391.has(normalized)) {
+    return;
+  }
+  if (ISO6393_TO_1[normalized]) {
+    throw new Error(
+      `Invalid language code: ${code}. Use ISO 639-1 code '${ISO6393_TO_1[normalized]}' instead.`
+    );
+  }
+  if (ISO6393_CODES.has(normalized)) {
+    return;
+  }
+  throw new Error(`Invalid language code: ${code}`);
 }
 
-function validateSpeakersAndStyles(data) {
-  const speakers = data.stj.transcript.speakers || [];
-  const styles = data.stj.transcript.styles || [];
+function validateLanguageCodes(stjRoot) {
+  const metadata = stjRoot.metadata || {};
+  const transcript = stjRoot.transcript || {};
+  const segments = Array.isArray(transcript.segments) ? transcript.segments : [];
+  const sourceLanguages = metadata.source?.languages || [];
+  const transcriptionLanguages = metadata.languages || [];
+  const segmentLanguages = segments.map(seg => seg.language).filter(Boolean);
+
+  const allLanguages = [...sourceLanguages, ...transcriptionLanguages, ...segmentLanguages];
+  allLanguages.forEach(assertValidLanguageCode);
+}
+
+function validateSpeakersAndStyles(transcript) {
+  const speakers = transcript.speakers || [];
+  const styles = transcript.styles || [];
+  const segments = transcript.segments || [];
   const speakerIds = new Set(speakers.map(s => s.id));
   const styleIds = new Set(styles.map(s => s.id));
 
-  data.stj.transcript.segments.forEach(segment => {
+  segments.forEach(segment => {
     const speakerId = segment.speaker_id;
     if (speakerId && !speakerIds.has(speakerId)) {
       throw new Error(`Invalid speaker_id '${speakerId}' in segment starting at ${segment.start}`);
@@ -137,8 +175,8 @@ function validateWords(segment, segmentIndex) {
   }
 }
 
-function validateSegments(data) {
-  const segments = data.stj.transcript.segments;
+function validateSegments(transcript) {
+  const segments = transcript.segments;
   let previousEnd = -1;
   let hasTimingInfo = false;
 
@@ -192,35 +230,57 @@ function validateSegments(data) {
   }
 }
 
-function validateStjData(data) {
-  validateLanguageCodes(data);
-  validateSegments(data);
-  validateSpeakersAndStyles(data);
+function validateStjData(stjRoot) {
+  if (!stjRoot || typeof stjRoot !== 'object') {
+    throw new Error('Invalid STJ data: missing root');
+  }
+  const transcript = stjRoot.transcript;
+  if (!transcript || !Array.isArray(transcript.segments)) {
+    throw new Error('Invalid STJ data: transcript must include a segments array');
+  }
+
+  validateLanguageCodes(stjRoot);
+  validateSegments(transcript);
+  validateSpeakersAndStyles(transcript);
 }
 
 // Export the validation function for use as a module
 async function validate(stjData, schemaPath) {
+  const ajv = new Ajv({ allErrors: true });
+  addFormats(ajv);
+
+  let deferredStructureError = null;
+  let stjRoot = null;
+
   try {
-    // Run our custom validation first
-    validateStjData(stjData);
-
-    // Then do schema validation
-    const ajv = new Ajv({ allErrors: true });
-    addFormats(ajv);
-
-    const schemaData = await fs.promises.readFile(path.resolve(schemaPath), 'utf-8');
-    const schema = JSON5.parse(schemaData);
-
-    const validateSchema = ajv.compile(schema);
-
-    const valid = validateSchema(stjData);
-    if (!valid) {
-      throw new Error('Schema Validation Errors: ' + JSON.stringify(validateSchema.errors, null, 2));
-    }
+    stjRoot = getStjRoot(stjData);
+    validateStjData(stjRoot);
   } catch (error) {
-    // Preserve the original error message
-    throw error;
+    if (typeof error.message === 'string' && error.message.toLowerCase().includes('invalid stj')) {
+      deferredStructureError = error;
+    } else {
+      throw error;
+    }
   }
+
+  const schemaData = await fs.promises.readFile(path.resolve(schemaPath), 'utf-8');
+  const schema = JSON5.parse(schemaData);
+
+  const validateSchema = ajv.compile(schema);
+
+  const valid = validateSchema(stjData);
+  if (!valid) {
+    throw new Error('Schema Validation Errors: ' + JSON.stringify(validateSchema.errors, null, 2));
+  }
+
+  if (deferredStructureError) {
+    throw deferredStructureError;
+  }
+
+  if (!stjRoot) {
+    stjRoot = getStjRoot(stjData);
+  }
+  validateStjData(stjRoot);
 }
 
 // Command-line interface
