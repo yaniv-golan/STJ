@@ -1,8 +1,27 @@
 #!/usr/bin/env python3
 
 import argparse
-import webvtt
-from stjlib import StandardTranscriptionJSON
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+VENDOR_DIR = PROJECT_ROOT / 'vendor' / 'python'
+
+
+def _ensure_vendor_path():
+    if VENDOR_DIR.exists():
+        vendor_path = str(VENDOR_DIR)
+        if vendor_path not in sys.path:
+            sys.path.append(vendor_path)
+
+
+try:
+    import webvtt  # noqa: E402
+    from stjlib import StandardTranscriptionJSON  # noqa: E402
+except ImportError:
+    _ensure_vendor_path()
+    import webvtt  # noqa: E402
+    from stjlib import StandardTranscriptionJSON  # noqa: E402
 
 def format_timestamp(seconds):
     milliseconds = int((seconds - int(seconds)) * 1000)

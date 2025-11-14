@@ -124,6 +124,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv_*/
+.vendor_venv/
 env/
 venv/
 ENV/
@@ -170,3 +172,5 @@ dist/
 .env
 .vscode/
 .vscode/launch.json
+
+docs/internal/
