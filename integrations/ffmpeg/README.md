@@ -11,7 +11,7 @@ FFmpeg is a powerful tool for processing audio and video files. While FFmpeg doe
 1. **Convert STJ to SRT or VTT**: Use the provided scripts to convert your STJ file to an SRT or VTT file.
 
    ```bash
-   python tools/python/stj_to_srt.py examples/complex.stj.json subtitles.srt
+   python tools/python/stj_to_srt.py examples/latest/complex.stj.json subtitles.srt
    ```
 
 2. **Embed Subtitles into Video**: Use FFmpeg to embed the subtitles into your video file.
@@ -55,7 +55,7 @@ Here's a complete example:
 
 ```bash
 # Step 1: Convert STJ to SRT
-python tools/python/stj_to_srt.py examples/complex.stj.json subtitles.srt
+python tools/python/stj_to_srt.py examples/latest/complex.stj.json subtitles.srt
 
 # Step 2: Embed SRT subtitles into video
 ffmpeg -i input_video.mp4 -vf subtitles=subtitles.srt output_video.mp4

@@ -2,7 +2,7 @@ import timeit
 
 setup_code = '''
 import json
-with open('examples/complex.stj.json', 'r', encoding='utf-8') as f:
+with open('examples/latest/complex.stj.json', 'r', encoding='utf-8') as f:
     data = f.read()
 '''
 

@@ -87,14 +87,14 @@ To verify that the tools are installed correctly, you can run the following comm
 - **Python Validator:**
 
   ```bash
-  python stj_validator.py ../../examples/simple.stj.json ../../spec/schema/stj-schema.json
+  python stj_validator.py ../../examples/latest/simple.stj.json ../../spec/schema/latest/stj-schema.json
   pytest
   ```
 
 - **JavaScript Validator:**
 
   ```bash
-  node stj-validator.js ../../examples/simple.stj.json ../../spec/schema/stj-schema.json
+  node stj-validator.js ../../examples/latest/simple.stj.json ../../spec/schema/latest/stj-schema.json
   ```
 
 If no errors are reported, the tools are installed and working properly.

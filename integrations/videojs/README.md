@@ -11,7 +11,7 @@ Video.js is a popular open-source HTML5 video player. It supports WebVTT subtitl
 1. **Convert STJ to WebVTT**: Use the provided script to convert your STJ file to a VTT file.
 
    ```bash
-   python tools/python/stj_to_vtt.py examples/complex.stj.json subtitles.vtt
+   python tools/python/stj_to_vtt.py examples/latest/complex.stj.json subtitles.vtt
    ```
 
 2. **Include Subtitles in Your HTML**:

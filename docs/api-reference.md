@@ -23,7 +23,7 @@ python stj_validator.py <stj_file>
 **Example**:
 
 ```bash
-python stj_validator.py examples/multilingual.stj.json
+python stj_validator.py examples/latest/multilingual.stj.json
 ```
 
 ### `stj_to_srt.py`
@@ -44,7 +44,7 @@ python stj_to_srt.py <stj_file> <output_srt>
 **Example**:
 
 ```bash
-python stj_to_srt.py examples/multilingual.stj.json output.srt
+python stj_to_srt.py examples/latest/multilingual.stj.json output.srt
 ```
 
 ### `stj_to_vtt.py`
@@ -65,7 +65,7 @@ python stj_to_vtt.py <stj_file> <output_vtt>
 **Example**:
 
 ```bash
-python stj_to_vtt.py examples/multilingual.stj.json output.vtt
+python stj_to_vtt.py examples/latest/multilingual.stj.json output.vtt
 ```
 
 ### `stj_to_ass.py`
@@ -86,7 +86,7 @@ python stj_to_ass.py <stj_file> <output_ass>
 **Example**:
 
 ```bash
-python stj_to_ass.py examples/multilingual.stj.json output.ass
+python stj_to_ass.py examples/latest/multilingual.stj.json output.ass
 ```
 
 ---
@@ -109,7 +109,7 @@ node stj-validator.js <stj_file> <schema_file>
 **Example**:
 
 ```bash
-node stj-validator.js examples/multilingual.stj.json spec/schema/stj-schema.json
+node stj-validator.js examples/latest/multilingual.stj.json spec/schema/latest/stj-schema.json
 ```
 
 ### `stj-to-srt.js`
@@ -130,7 +130,7 @@ node stj-to-srt.js <stj_file> <output_srt>
 **Example**:
 
 ```bash
-node stj-to-srt.js examples/multilingual.stj.json output.srt
+node stj-to-srt.js examples/latest/multilingual.stj.json output.srt
 ```
 
 ### `stj-to-vtt.js`
@@ -151,7 +151,7 @@ node stj-to-vtt.js <stj_file> <output_vtt>
 **Example**:
 
 ```bash
-node stj-to-vtt.js examples/multilingual.stj.json output.vtt
+node stj-to-vtt.js examples/latest/multilingual.stj.json output.vtt
 ```
 
 ### `stj-to-ass.js`
@@ -172,7 +172,7 @@ node stj-to-ass.js <stj_file> <output_ass>
 **Example**:
 
 ```bash
-node stj-to-ass.js examples/multilingual.stj.json output.ass
+node stj-to-ass.js examples/latest/multilingual.stj.json output.ass
 ```
 
 ---
@@ -253,4 +253,3 @@ node stj-to-ass.js examples/multilingual.stj.json output.ass
 - **Dependencies**:
   - `fs`
   - `process`
-

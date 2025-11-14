@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased]
+
+- _No changes yet_
+
+## [0.6.1] - 2025-11-15
+
+### Fixed
+
+- Corrected the IEEE 754 round-to-nearest-even examples in the Time Format Requirements so implementers no longer inherit incorrect rounding guidance.
+- Made URI validation severity consistent across the General Validation section so RFC 3986 violations are always treated as ERROR-level issues.
+
+### Clarified
+
+- Renamed repeated headings (e.g., Metadata Fields, Segment Time Fields, Speaker ID Format Specifications) and updated cross-references so every anchor target exists and navigation works across renderers.
+- Added explicit subheadings for segment-level validation requirements to match existing summary links and improve intra-document references.
+- Clarified the Optional vs. Mandatory Fields note to emphasize which optional fields may appear empty, aligned URI validation text with the ERROR-level requirement, detailed the default behavior for `word_timing_mode` omissions, and spelled out how simultaneous segments must retain their provided order.
+- Noted repository tooling updates:
+  - Python CLI utilities now bootstrap their vendored dependencies automatically so local installs no longer depend on globally available `stjlib`, `srt`, or `webvtt`.
+  - A vendored ISO 639 dataset backs the JavaScript validator, eliminating fragile runtime imports while preserving ISO 639-1/639-3 enforcement.
+  - Added a project-level `pytest.ini` to scope discovery to first-party tests and ignore the new vendor tree, ensuring `pytest` and CI runs remain stable.
+
 ## [0.6.0] - 2024-10-27
 
 ### Breaking Changes

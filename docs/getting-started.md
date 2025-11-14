@@ -12,7 +12,7 @@ Welcome to the Standard Transcription JSON (STJ) format! This guide will help yo
 To validate an STJ file using the provided Python script:
 
 ```bash
-python tools/python/stj_validator.py examples/simple.stj.json
+python tools/python/stj_validator.py examples/latest/simple.stj.json
 ```
 
 ## Converting STJ to SRT
@@ -20,7 +20,7 @@ python tools/python/stj_validator.py examples/simple.stj.json
 To convert an STJ file to SRT:
 
 ```bash
-python tools/python/stj_to_srt.py examples/simple.stj.json output.srt
+python tools/python/stj_to_srt.py examples/latest/simple.stj.json output.srt
 ```
 
 ## Further Reading

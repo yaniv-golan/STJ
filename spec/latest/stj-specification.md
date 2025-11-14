@@ -1,7 +1,7 @@
 # Standard Transcription JSON (STJ) Format Specification
 
-**Version**: 0.6.0
-**Date**: 2024-10-27
+**Version**: 0.6.1
+**Date**: 2025-11-15
 
 ## Introduction
 
@@ -124,7 +124,7 @@ No additional properties are allowed at the root level.
 
 The `"metadata"` object is **OPTIONAL** and **MAY** include fields providing context about the transcription. The metadata object MAY be empty to indicate metadata processing was attempted but found no properties.
 
-#### Fields
+#### Metadata Fields
 
 - **transcriber** *(object, optional)*: Information about the transcriber application or service.
   - **name** *(string, optional)*: Name of the transcriber application.
@@ -197,7 +197,7 @@ In this example, the source media contains English and Spanish, but the transcri
 
 The `"transcript"` object contains the transcription data, including speaker information, segments, and optional styling.
 
-#### Fields
+#### Transcript Fields
 
 - **speakers** *(array, optional)*: List of speaker objects. May be empty to indicate speaker identification was attempted but no speakers were found.
 - **styles** *(array, optional)*: List of style definitions for formatting and positioning. May be empty to indicate style processing was performed but no styles were defined.
@@ -349,7 +349,7 @@ Each segment object includes:
   - If present, **MUST** be `true`
 - **text** *(string, mandatory)*: Transcribed text of the segment.
 - **speaker_id** *(string, optional)*: The `id` of the speaker from the `speakers` list.
-- **confidence** *(number, optional)*: Confidence score for the segment (0.0 - 1.0).
+- **confidence** *(number or null, optional)*: Confidence score for the segment. When numeric, **MUST** be within [0.0, 1.0]; **MAY** be `null` to indicate scoring was attempted but failed.
 - **language** *(string, optional)*: Language code for the segment (ISO 639-1 or ISO 639-3).
 - **style_id** *(string, optional)*: The `id` of the style from the `styles` list.
 - **words** *(array, optional)*: List of word-level details. When present (in "complete" or "partial" modes), must contain at least one word. Must be omitted entirely (not included as empty) when using `word_timing_mode: "none"` for segments where word timing isn't applicable or fails.
@@ -360,7 +360,7 @@ Each segment object includes:
     - **MUST NOT** be present when `start` does not equal `end`
     - If present, **MUST** be `true`
   - **text** *(string, mandatory)*: The word text.
-  - **confidence** *(number, optional)*: Confidence score for the word (0.0 - 1.0).
+  - **confidence** *(number or null, optional)*: Confidence score for the word. Numeric values **MUST** be within [0.0, 1.0]; **MAY** be `null` to indicate scoring was attempted but failed.
 - **word_timing_mode** *(string, optional)*: Indicates the completeness of word-level timing data within the segment.
 - **extensions** *(object, optional)*: Any additional information about the segment.
 
@@ -519,7 +519,7 @@ In this example:
   - `metadata` and all its subfields
   - `speakers`, `styles`, `speaker_id`, `confidence`, `language`, `style_id`, `words`, `word_timing_mode`, etc.
 
-**Note**: When optional fields are present but empty (empty arrays, objects, or strings), this indicates the field was processed but no content was found. When optional fields are omitted entirely, this indicates the field was not processed or is not applicable. See the Empty Value Constraints section under Structural Requirements for details.
+**Note**: Only the optional fields explicitly called out in the Empty Array/Object/String Rules may be included as empty values to indicate "processed but no content." All other optional fields **MUST** be omitted entirely when empty or not applicable. See the Empty Value Constraints section for the complete list of exceptions.
 
 ## Field Definitions and Constraints
 
@@ -572,11 +572,11 @@ When in doubt, omit optional fields entirely rather than including them as empty
 - **Null Values**:
   - Null values are **not allowed** for any field unless explicitly documented.
   - Optional fields **MUST** be omitted entirely rather than set to null unless explicitly documented as allowing null.
-  - The `confidence` field **MAY** be null to indicate confidence scoring was attempted but failed.
+  - The segment-level (`transcript.segments[].confidence`) and word-level (`transcript.segments[].words[].confidence`) `confidence` fields **MAY** be null to indicate scoring was attempted but failed.
 
 ##### Confidence Field Exception Details
 
-The `confidence` field is allowed to be null because it represents three distinct states that need to be distinguishable:
+Confidence fields are allowed to be null because they represent three distinct states that need to be distinguishable:
 
 1. **Field Omitted**: Confidence scoring was not attempted
 2. **Null Value**: Confidence scoring was attempted but failed
@@ -607,6 +607,8 @@ Applications processing STJ files should:
 - Treat a missing confidence field as "not attempted"
 - Handle null confidence values as "attempted but failed"
 - Process numeric confidence values normally
+
+The same tri-state semantics apply to word-level confidence values within `words` arrays.
 
 #### Empty Arrays
 
@@ -750,7 +752,7 @@ Explanation: The `segments` array is mandatory and must contain at least one seg
 
 All time values in the STJ format (`start` and `end` fields) **MUST** follow these requirements:
 
-#### Format Specifications
+#### Time Format Specifications
 
 - **Type**: Non-negative decimal numbers
 - **Precision Requirements**:
@@ -795,11 +797,11 @@ Valid Input Values and Their Processing:
 
 IEEE 754 Round-to-Nearest-Even Examples:
 
-- `1.2345` → `1.235` (rounded up as 5 is even)
-- `1.2335` → `1.234` (rounded up as 4 is even)
-- `1.2325` → `1.232` (rounded down as 2 is even)
-- `1.2315` → `1.232` (rounded up as 2 is even)
-- `1.2305` → `1.230` (rounded down as 0 is even)
+- `1.2345` → `1.234` (tie rounds to keep the previous digit 4, which is even)
+- `1.2335` → `1.234` (tie rounds up so the last kept digit becomes even)
+- `1.2325` → `1.232` (tie rounds to keep the previous digit 2, which is even)
+- `1.2315` → `1.232` (tie rounds up so the last kept digit becomes even)
+- `1.2305` → `1.230` (tie rounds to keep the previous digit 0, which is even)
 
 Edge Cases:
 
@@ -843,9 +845,10 @@ Invalid Values (Must Be Rejected):
 
 ### Confidence Scores
 
-- **Type**: Floating-point numbers between `0.0` (no confidence) and `1.0` (full confidence).
+- **Type**: Floating-point numbers between `0.0` (no confidence) and `1.0` (full confidence) or `null` to indicate scoring was attempted but failed.
 - **Usage**: Optional but recommended for segments and words.
 - **Purpose**: Provides an indication of the reliability of the transcribed text.
+- **Null Handling**: Use `null` when confidence computation was attempted but could not be completed; omit the field entirely when confidence was not attempted.
 
 ### Language Codes
 
@@ -883,7 +886,7 @@ Applications **MUST**:
 
 Defines the format and constraints for the `uri` field in the `metadata.source` object.
 
-#### Format Specifications
+#### URI Format Specifications
 
 - **Type**: String representing a Uniform Resource Identifier (URI) as defined in [RFC 3986](https://www.rfc-editor.org/rfc/rfc3986.html).
 - **Allowed Schemes**:
@@ -904,10 +907,10 @@ Defines the format and constraints for the `uri` field in the `metadata.source` 
   - If a relative URI is provided, consuming applications **MUST** resolve it relative to a known base URI.
   - **Note**: Relative URIs can lead to ambiguity and are discouraged.
 
-#### Validation Rules
+#### URI Validation Rules
 
 - The `uri` **MUST** conform to the syntax defined in RFC 3986.
-- Implementations **SHOULD** validate the URI format and report errors if invalid.
+- Implementations **MUST** validate the URI format against RFC 3986 and **MUST** reject the STJ file (ERROR severity) if the `uri` is invalid.
 - **Scheme Support**:
   - Implementations **MUST** support `http` and `https` schemes.
   - Support for other schemes is **optional** and may vary between implementations.
@@ -954,7 +957,7 @@ Defines the format and constraints for the `uri` field in the `metadata.source` 
 
 ### Speaker IDs
 
-#### Format Specifications
+#### Speaker ID Format Specifications
 
 - **Type**: String.
 - **Allowed Characters**: Letters (`A-Z`, `a-z`), digits (`0-9`), underscores (`_`), and hyphens (`-`).
@@ -1008,7 +1011,7 @@ Defines the format and constraints for the `uri` field in the `metadata.source` 
   ]
   ```
 
-#### Validation Rules
+#### Speaker ID Validation Rules
 
 - **ID Format Validation**:
   - IDs **MUST** only contain allowed characters.
@@ -1096,9 +1099,9 @@ Use `word_timing_mode: "none"` and omit the words array entirely.
 
 #### Default Behavior
 
-- When `word_timing_mode` is omitted and a `words` array is present with complete coverage: Treated as `"complete"`
-- When `word_timing_mode` is omitted and no `words` array is present: Treated as `"none"`
-- When `word_timing_mode` is omitted and `words` array is present but incomplete: Invalid—**MUST** explicitly specify `"partial"`
+- When `word_timing_mode` is omitted and a `words` array is present that satisfies all requirements for `"complete"` mode (see [Word-Level Validation > Mode-Specific Validation](#mode-specific-validation)): Treated as `"complete"`.
+- When `word_timing_mode` is omitted and no `words` array is present: Treated as `"none"`.
+- When `word_timing_mode` is omitted and a `words` array is present but does not meet either the `"complete"` or `"partial"` requirements: This is an **ERROR**—implementations **MUST** either supply `word_timing_mode: "partial"` (with compliant data) or remove the `words` array.
 
 Note: Empty `words` arrays are never allowed. Use `word_timing_mode: "none"` and omit the array entirely when word timing isn't applicable, fails, or wasn't attempted.
 
@@ -1109,7 +1112,7 @@ When word timing information is included (modes "complete" or "partial"), the `w
 - `text` (string): The word text
 - `start` (number): Start time in seconds
 - `end` (number): End time in seconds
-- `confidence` (number, optional): Confidence score for the word
+- `confidence` (number or null, optional): Confidence score for the word. Numeric values **MUST** be within [0.0, 1.0]; `null` indicates scoring was attempted but failed.
 
 Time values MUST follow the Time Format Requirements defined in this specification.
 
@@ -1419,29 +1422,29 @@ This section provides an overview of all validation requirements organized by ca
 
 ##### Speaker and Style IDs
 
-- Format specifications: See [Speaker IDs > Format Specifications](#format-specifications)
-- Uniqueness requirements: See [Speaker IDs > Validation Rules](#validation-rules)
+- Format specifications: See [Speaker IDs > Speaker ID Format Specifications](#speaker-id-format-specifications)
+- Uniqueness requirements: See [Speaker IDs > Speaker ID Validation Rules](#speaker-id-validation-rules)
 - Reference validation: See [Speaker IDs > Examples of invalid speaker references](#examples-of-invalid-speaker-references)
 - Style ID requirements: See [Style IDs](#style-ids)
 
 ##### URI Validation
 
 - Format specifications: See [URI Format Requirements](#uri-format-requirements)
-- Scheme support: See [URI Format Requirements > Format Specifications](#format-specifications-1)
+- Scheme support: See [URI Format Requirements > URI Format Specifications](#uri-format-specifications)
 - Security considerations: See [URI Format Requirements > Security Considerations](#security-considerations)
 
 ##### Metadata Validation
 
-- Field requirements: See [Metadata Section > Fields](#fields)
+  - Field requirements: See [Metadata Section > Metadata Fields](#metadata-fields)
 - Language specifications: See [Metadata Section > Clarification on languages Fields](#clarification-on-languages-fields)
 
 #### Content Validation
 
 ##### Segment Validation
 
-- Required fields: See [Segment-Level Validation > Required Fields](#required-fields)
-- Time field requirements: See [Segment-Level Validation > Time Fields](#time-fields)
-- Reference validation: See [Segment-Level Validation > References](#references)
+- Required fields: See [Segment-Level Validation > Segment Required Fields](#segment-required-fields)
+- Time field requirements: See [Segment-Level Validation > Segment Time Fields](#segment-time-fields)
+- Reference validation: See [Segment-Level Validation > Segment References](#segment-references)
 - Ordering requirements: See [Segment-Level Validation > Segment Ordering](#segment-ordering)
 - Overlap restrictions: See [Segment-Level Validation > Segment Overlap](#segment-overlap)
 - Zero-duration rules: See [Segment-Level Validation > Zero-Duration Segments](#zero-duration-segments)
@@ -1509,53 +1512,61 @@ Implementations **SHOULD** output validation results in a structured format, suc
 
 ### Segment-Level Validation
 
-- **Required Fields**:
-  - `text` **MUST** be present and non-empty.
-    - **Severity if violated:** ERROR
-- **Time Fields**:
-  - `start` and `end` times, if present, **MUST** conform to the [Time Format Requirements](#time-format-requirements) section.
-    - **Severity if violated:** ERROR
-  - If `start` equals end, `is_zero_duration` **MUST** be included and set to `true`.
-    - **Severity if violated:** ERROR
+#### Segment Required Fields
 
-- **References**:
-  - `speaker_id`, if present, **MUST** match an `id` in the `speakers` list.
-    - **Severity if violated:** ERROR
-  - `style_id`, if present, **MUST** match an `id` in the `styles` list.
-    - **Severity if violated:** ERROR
+- `text` **MUST** be present and non-empty.
+  - **Severity if violated:** ERROR
 
-- **Segment Ordering**:
-  - Segments **MUST** be ordered by their `start` times in ascending order.
-    - **Severity if violated:** ERROR
-    - **Rationale**: Unordered segments can disrupt processing logic and lead to incorrect media synchronization.
-  - For segments with identical start times, they **MUST** be ordered by their end times in ascending order.
-    - **Severity if violated:** ERROR
-    - **Rationale**: Consistent ordering is essential for predictable processing and display.
-  - For segments with identical start and end times, the original array order **MUST** be preserved.
-    - **Severity if violated:** ERROR
-    - **Rationale**: Maintaining original order ensures stable sorting and preserves intended sequence of simultaneous events.
+#### Segment Time Fields
 
-- **Segment Overlap**:
-  - Segments **MUST NOT** overlap in time.
-    - **Severity if violated:** ERROR
-    - **Rationale**: Overlapping segments create ambiguity about which text applies at what time and can cause rendering issues.
-  - **Error Recovery Guidelines**:
-    - While overlapping segments make an STJ file invalid, applications processing potentially invalid files **SHOULD** implement error recovery strategies rather than fail completely.
-    - Recovery strategies **MAY** include:
-      - Merging overlapping segments
-      - Adjusting segment timings to eliminate overlaps
-      - Alerting users to review and correct the overlaps
-    - Applications implementing recovery strategies **MUST** still report the overlap as an ERROR during validation.
+- `start` and `end` times, if present, **MUST** conform to the [Time Format Requirements](#time-format-requirements) section.
+  - **Severity if violated:** ERROR
+- If `start` equals `end`, `is_zero_duration` **MUST** be included and set to `true`.
+  - **Severity if violated:** ERROR
 
-- **Zero-Duration Segments**:
-  - **MUST** follow the zero-duration requirements defined in the [Time Format Requirements](#time-format-requirements) section.
-    - **Severity if violated:** ERROR
-    - The presence of `is_zero_duration` when `start` does not equal `end` **MUST** result in an ERROR
+#### Segment References
 
-- **Timing Consistency**:
-  - If any segment in a transcript includes timing information (`start` and `end`), all segments in that transcript MUST include timing information.
-    - **Severity if violated:** ERROR
-    - **Rationale**: Mixed timed/untimed segments create ambiguity in processing and display.
+- `speaker_id`, if present, **MUST** match an `id` in the `speakers` list.
+  - **Severity if violated:** ERROR
+- `style_id`, if present, **MUST** match an `id` in the `styles` list.
+  - **Severity if violated:** ERROR
+
+#### Segment Ordering
+
+- Segments **MUST** be ordered by their `start` times in ascending order.
+  - **Severity if violated:** ERROR
+  - **Rationale**: Unordered segments can disrupt processing logic and lead to incorrect media synchronization.
+- For segments with identical start times, they **MUST** be ordered by their end times in ascending order.
+  - **Severity if violated:** ERROR
+  - **Rationale**: Consistent ordering is essential for predictable processing and display.
+- For segments with identical start and end times, their array order defines display order and **MUST NOT** be changed by producers or consuming applications.
+  - **Severity if violated:** ERROR
+  - **Rationale**: Maintaining the provided order ensures simultaneous events remain in the author’s intended sequence; reordering can change meaning even when timestamps match.
+
+#### Segment Overlap
+
+- Segments **MUST NOT** overlap in time.
+  - **Severity if violated:** ERROR
+  - **Rationale**: Overlapping segments create ambiguity about which text applies at what time and can cause rendering issues.
+- **Error Recovery Guidelines**:
+  - While overlapping segments make an STJ file invalid, applications processing potentially invalid files **SHOULD** implement error recovery strategies rather than fail completely.
+  - Recovery strategies **MAY** include:
+    - Merging overlapping segments
+    - Adjusting segment timings to eliminate overlaps
+    - Alerting users to review and correct the overlaps
+  - Applications implementing recovery strategies **MUST** still report the overlap as an ERROR during validation.
+
+#### Zero-Duration Segments
+
+- Segments **MUST** follow the zero-duration requirements defined in the [Time Format Requirements](#time-format-requirements) section.
+  - **Severity if violated:** ERROR
+- The presence of `is_zero_duration` when `start` does not equal `end` **MUST** result in an ERROR.
+
+#### Segment Timing Consistency
+
+- If any segment in a transcript includes timing information (`start` and `end`), all segments in that transcript **MUST** include timing information.
+  - **Severity if violated:** ERROR
+  - **Rationale**: Mixed timed/untimed segments create ambiguity in processing and display.
 
 #### Overlapping Segments Examples
 
@@ -1746,7 +1757,7 @@ The `words` array:
   - The `uri` field in `metadata.source` **MUST** conform to the [URI Format Requirements](#uri-format-requirements).
     - **Severity if violated:** ERROR
   - Implementations **SHOULD** validate the URI format according to RFC 3986.
-    - **Invalid URIs** **SHOULD** result in a **WARNING**.
+    - **Invalid URIs** **MUST** be reported as an **ERROR**.
   - **Relative URIs**:
     - Relative URIs **SHOULD NOT** be used.
       - **Severity if violated:** WARNING
@@ -1760,8 +1771,9 @@ The `words` array:
     - **Severity if violated:** ERROR
 
 - **Confidence Score Requirements**:
-  - Confidence scores, if present, **MUST** be within the range [0.0, 1.0].
+  - Segment- and word-level `confidence` fields, when numeric, **MUST** be within the range [0.0, 1.0].
     - **Severity if violated:** ERROR
+  - `confidence` **MAY** be `null` to indicate scoring was attempted but failed; `null` values **MUST NOT** be treated as errors.
 
 - **Reference Requirements**:
   - **Speaker IDs**:
