@@ -18,6 +18,9 @@
     "node-webvtt": "^1.1.0",
     "srt-parser-2": "^1.1.8"
   },
+  "overrides": {
+    "js-yaml": "4.1.1"
+  },
   "devDependencies": {
     "jest": "^27.0.6"
   },
