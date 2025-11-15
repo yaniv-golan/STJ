@@ -25,8 +25,9 @@ def test_invalid_missing_mandatory_field():
             }
         }
     }
-    with pytest.raises(ValidationError, match="STJ version is required"):
-        StandardTranscriptionJSON.from_dict(stj_data)
+    stj = StandardTranscriptionJSON.from_dict(stj_data)
+    with pytest.raises(ValidationError, match="version"):
+        stj.validate(raise_exception=True)
 
 def test_invalid_wrong_data_type():
     stj_data = {
