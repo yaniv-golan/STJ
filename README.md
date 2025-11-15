@@ -1,6 +1,6 @@
 # Standard Transcription JSON (STJ) Format
 
-[![Specification Version](https://img.shields.io/badge/Specification-v0.6.1-blue.svg)](https://yaniv-golan.github.io/STJ/spec/latest/stj-specification/)
+[![Specification Version](https://img.shields.io/badge/Specification-v0.6.1-blue.svg)](https://yaniv-golan.github.io/STJ/spec/latest/)
 [![CI Status](https://img.shields.io/github/actions/workflow/status/yaniv-golan/STJ/ci.yml?branch=main&label=tests)](https://github.com/yaniv-golan/STJ/actions/workflows/ci.yml)
 [![Documentation](https://img.shields.io/github/actions/workflow/status/yaniv-golan/STJ/docs.yml?branch=main&label=docs)](https://yaniv-golan.github.io/STJ/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/yaniv-golan/STJ/blob/main/LICENSE)
