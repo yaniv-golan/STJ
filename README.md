@@ -1,7 +1,14 @@
 # Standard Transcription JSON (STJ) Format
 
-**Version**: 0.6.1
-**Date**: 2025-11-15
+[![Specification Version](https://img.shields.io/badge/Specification-v0.6.1-blue.svg)](https://yaniv-golan.github.io/STJ/spec/latest/stj-specification/)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/yaniv-golan/STJ/ci.yml?branch=main&label=tests)](https://github.com/yaniv-golan/STJ/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/github/actions/workflow/status/yaniv-golan/STJ/docs.yml?branch=main&label=docs)](https://yaniv-golan.github.io/STJ/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/yaniv-golan/STJ/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/yaniv-golan/STJ)](https://github.com/yaniv-golan/STJ/releases)
+
+[![GitHub issues](https://img.shields.io/github/issues/yaniv-golan/STJ)](https://github.com/yaniv-golan/STJ/issues)
+[![Contributors](https://img.shields.io/github/contributors/yaniv-golan/STJ)](https://github.com/yaniv-golan/STJ/graphs/contributors)
+[![GitHub stars](https://img.shields.io/github/stars/yaniv-golan/STJ?style=social)](https://github.com/yaniv-golan/STJ)
 
 ## Introduction
 
