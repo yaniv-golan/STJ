@@ -71,27 +71,24 @@ def test_invalid_root_structures():
     
     Reference: spec/latest/stj-specification.md#examples-of-invalid-root-structures
     """
-    # Missing mandatory fields - should create but fail validation
-    stj = StandardTranscriptionJSON.from_dict({"stj": {}})
-    issues = stj.validate(raise_exception=False)
-    assert issues, "Should have validation issues for missing mandatory fields"
+    # Missing mandatory fields
+    with pytest.raises(Exception):
+        StandardTranscriptionJSON.from_dict({"stj": {}})
     
-    # Missing transcript - should create but fail validation
-    stj = StandardTranscriptionJSON.from_dict({
-        "stj": {
-            "version": "0.6.0"
-        }
-    })
-    issues = stj.validate(raise_exception=False)
-    assert issues, "Should have validation issues for missing transcript"
+    # Missing transcript
+    with pytest.raises(Exception):
+        StandardTranscriptionJSON.from_dict({
+            "stj": {
+                "version": "0.6.0"
+            }
+        })
     
-    # Missing stj root object - should create but fail validation
-    stj = StandardTranscriptionJSON.from_dict({
-        "version": "0.6.0",
-        "transcript": {}
-    })
-    issues = stj.validate(raise_exception=False)
-    assert issues, "Should have validation issues for missing stj root"
+    # Missing stj root object
+    with pytest.raises(Exception):
+        StandardTranscriptionJSON.from_dict({
+            "version": "0.6.0",
+            "transcript": {}
+        })
 
 def test_metadata_example():
     """Tests the metadata section example.
