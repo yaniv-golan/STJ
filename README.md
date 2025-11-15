@@ -7,7 +7,7 @@
 
 The **Standard Transcription JSON (STJ)** format is a proposed standard for representing transcribed audio and video data in a structured, machine-readable JSON format. It aims to provide a comprehensive and flexible framework that is a superset of existing transcription and subtitle formats.
 
-[Read the full specification](./spec/latest/stj-specification.md)
+[Read the full specification](spec/latest/stj-specification.md) • [Published docs site](https://yaniv-golan.github.io/STJ/)
 
 ## Repository Structure
 
@@ -22,7 +22,7 @@ The **Standard Transcription JSON (STJ)** format is a proposed standard for repr
 
 ## Getting Started
 
-To get started with STJ, please refer to the [Getting Started Guide](./docs/getting-started.md).
+To get started with STJ, please refer to the [Getting Started Guide](docs/getting-started.md).
 
 ## Installation
 
@@ -68,7 +68,7 @@ cd tools/javascript/
 npm install
 ```
 
-For more detailed installation instructions and troubleshooting, please refer to the [Installation Guide](./docs/installation.md).
+For more detailed installation instructions and troubleshooting, please refer to the [Installation Guide](docs/installation.md).
 
 ## Running Tests
 
@@ -102,13 +102,13 @@ The repository uses GitHub Actions for continuous integration. Tests are automat
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contribution Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md).
+Contributions are welcome! Please read our [Contribution Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Documentation
 
-- [API Reference](./docs/api-reference.md)
-- [Best Practices](./docs/best-practices.md)
-- [STJ Specification](./spec/stj-specification.md)
+- [API Reference](docs/api-reference.md)
+- [Best Practices](docs/best-practices.md)
+- [STJ Specification](spec/latest/stj-specification.md)
 
 ## Projects using STJ
 
@@ -117,4 +117,4 @@ Contributions are welcome! Please read our [Contribution Guidelines](./CONTRIBUT
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+This project is licensed under the [MIT License](LICENSE).

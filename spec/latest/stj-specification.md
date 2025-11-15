@@ -58,7 +58,7 @@ The STJ file **MUST** contain a single JSON object with the root property name `
 ```json
 {
   "stj": {
-    "version": "0.6.0",
+    "version": "0.6.1",
     "transcript": { ... }
   }
 }
@@ -72,7 +72,7 @@ The `"metadata"` field is optional and can be included to provide additional con
 ```json
 {
   "stj": {
-    "version": "0.6.0",
+    "version": "0.6.1",
     "metadata": { ... },
     "transcript": { ... }
   }
@@ -94,18 +94,18 @@ No additional properties are allowed at the root level.
 - Invalid: **Missing transcript:**
 
 ```json
-{
-  "stj": {
-    "version": "0.6.0"
+  {
+    "stj": {
+      "version": "0.6.1"
+    }
   }
-}
 ```
 
 - Invalid: **Missing stj root object:**
 
 ```json
 {
-  "version": "0.6.0",         // ERROR: Missing stj root object
+  "version": "0.6.1",         // ERROR: Missing stj root object
   "transcript": {}
 }
 ```
@@ -146,7 +146,7 @@ The `"metadata"` object is **OPTIONAL** and **MAY** include fields providing con
 "metadata": {
   "transcriber": {
     "name": "YAWT",
-    "version": "0.6.0"
+    "version": "0.6.1"
   },
   "created_at": "2024-10-27T12:00:00Z"
 },
@@ -369,7 +369,7 @@ Each segment object includes:
 ```json
 {
   "stj": {
-    "version": "0.6.0",
+    "version": "0.6.1",
     "transcript": {
       "speakers": [
         {"id": "Speaker1", "name": "Speaker One"},
@@ -461,7 +461,7 @@ Imagine a video where presenters speak in English and Spanish, and the transcrip
 ```json
 {
  "stj": {
-    "version": "0.6.0",
+    "version": "0.6.1",
     "metadata": {
       "transcriber": {
         "name": "YAWT",
@@ -1491,10 +1491,10 @@ Implementations **SHOULD** output validation results in a structured format, suc
       "suggestion": "Ensure 'start' is a non-negative decimal number."
     },
     {
-      "severity": "WARNING",
+      "severity": "ERROR",
       "path": "transcript.segments[1]",
       "code": "OVERLAPPING_SEGMENTS",
-      "message": "Segments should not overlap in time.",
+      "message": "Segments must not overlap in time.",
       "specRef": "#segment-overlap",
       "suggestion": "Adjust segment timings to prevent overlap."
     },
@@ -1756,8 +1756,8 @@ The `words` array:
 - **URI Validation Requirements**:
   - The `uri` field in `metadata.source` **MUST** conform to the [URI Format Requirements](#uri-format-requirements).
     - **Severity if violated:** ERROR
-  - Implementations **SHOULD** validate the URI format according to RFC 3986.
-    - **Invalid URIs** **MUST** be reported as an **ERROR**.
+  - Implementations **MUST** validate the URI format according to RFC 3986.
+    - Any RFC 3986 violation **MUST** be reported as an **ERROR** (the STJ file is invalid).
   - **Relative URIs**:
     - Relative URIs **SHOULD NOT** be used.
       - **Severity if violated:** WARNING

@@ -1,0 +1,44 @@
+site_name: STJ Specification
+site_url: https://yaniv-golan.github.io/STJ/
+repo_url: https://github.com/yaniv-golan/STJ
+edit_uri: edit/main/
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - content.action.edit
+  palette:
+    scheme: default
+
+markdown_extensions:
+  - attr_list
+
+plugins:
+  - search
+  - exclude:
+      glob:
+        - "internal/**"
+        - "**/internal/**"
+  - include-markdown:
+      heading_offset: 0
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Specification:
+    - Latest: spec/latest.md
+    - Version 0.6.0: spec/v0.6.0.md
+    - Version 0.5.0: spec/v0.5.0.md
+    - Version 0.4.0: spec/v0.4.0.md
+    - Changelog: spec/CHANGELOG.md
+  - Documentation:
+    - Installation: installation.md
+    - API Reference: api-reference.md
+    - Best Practices: best-practices.md
+  - Project:
+    - Contribution Guidelines: CONTRIBUTING.md
+    - Code of Conduct: CODE_OF_CONDUCT.md
+    - License: LICENSE

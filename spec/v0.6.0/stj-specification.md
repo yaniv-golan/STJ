@@ -750,7 +750,7 @@ Explanation: The `segments` array is mandatory and must contain at least one seg
 
 All time values in the STJ format (`start` and `end` fields) **MUST** follow these requirements:
 
-#### Format Specifications
+#### Format Specifications {#format-specifications-1}
 
 - **Type**: Non-negative decimal numbers
 - **Precision Requirements**:
@@ -1507,24 +1507,25 @@ Implementations **SHOULD** output validation results in a structured format, suc
 }
 ```
 
-### Segment-Level Validation
+### Segment-Level Validation {#segment-level-validation}
 
-- **Required Fields**:
-  - `text` **MUST** be present and non-empty.
-    - **Severity if violated:** ERROR
-- **Time Fields**:
+#### Required Fields {#required-fields}
+- `text` **MUST** be present and non-empty.
+  - **Severity if violated:** ERROR
+
+#### Time Fields {#time-fields}
   - `start` and `end` times, if present, **MUST** conform to the [Time Format Requirements](#time-format-requirements) section.
     - **Severity if violated:** ERROR
   - If `start` equals end, `is_zero_duration` **MUST** be included and set to `true`.
     - **Severity if violated:** ERROR
 
-- **References**:
+#### References {#references}
   - `speaker_id`, if present, **MUST** match an `id` in the `speakers` list.
     - **Severity if violated:** ERROR
   - `style_id`, if present, **MUST** match an `id` in the `styles` list.
     - **Severity if violated:** ERROR
 
-- **Segment Ordering**:
+#### Segment Ordering {#segment-ordering}
   - Segments **MUST** be ordered by their `start` times in ascending order.
     - **Severity if violated:** ERROR
     - **Rationale**: Unordered segments can disrupt processing logic and lead to incorrect media synchronization.
@@ -1535,7 +1536,7 @@ Implementations **SHOULD** output validation results in a structured format, suc
     - **Severity if violated:** ERROR
     - **Rationale**: Maintaining original order ensures stable sorting and preserves intended sequence of simultaneous events.
 
-- **Segment Overlap**:
+#### Segment Overlap {#segment-overlap}
   - Segments **MUST NOT** overlap in time.
     - **Severity if violated:** ERROR
     - **Rationale**: Overlapping segments create ambiguity about which text applies at what time and can cause rendering issues.
@@ -1547,12 +1548,12 @@ Implementations **SHOULD** output validation results in a structured format, suc
       - Alerting users to review and correct the overlaps
     - Applications implementing recovery strategies **MUST** still report the overlap as an ERROR during validation.
 
-- **Zero-Duration Segments**:
+#### Zero-Duration Segments {#zero-duration-segments}
   - **MUST** follow the zero-duration requirements defined in the [Time Format Requirements](#time-format-requirements) section.
     - **Severity if violated:** ERROR
     - The presence of `is_zero_duration` when `start` does not equal `end` **MUST** result in an ERROR
 
-- **Timing Consistency**:
+#### Timing Consistency
   - If any segment in a transcript includes timing information (`start` and `end`), all segments in that transcript MUST include timing information.
     - **Severity if violated:** ERROR
     - **Rationale**: Mixed timed/untimed segments create ambiguity in processing and display.
